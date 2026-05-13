@@ -7,6 +7,8 @@
 ✅ СОВМЕСТИМО: Интеграция с системой тем, переводов и виджетов
 """
 
+import sqlite3
+
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from typing import Optional, Callable, List, Dict, Any
@@ -371,6 +373,8 @@ class DashboardView(ctk.CTkFrame):
                     cur.executemany("DELETE FROM requests WHERE id = ?", [(rid,) for rid in ids])
                 ToastNotification(self, f"✅ {get_text('deleted', self.lang)}: {count}", "success")
                 self._load_requests()
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {get_text('error', self.lang)}: {e}", "error")
 

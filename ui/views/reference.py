@@ -6,6 +6,8 @@
 ✅ СОВМЕСТИМО: Интеграция с системой тем, переводов и виджетов
 """
 
+import sqlite3
+
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from typing import Optional, Callable, Dict, Any, List
@@ -298,6 +300,8 @@ class ReferenceView(ctk.CTkFrame):
                     cur.execute("DELETE FROM employees WHERE id = ?", (emp_id,))
                 self._load_employees()
                 ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {e}", "error")
 
@@ -420,6 +424,8 @@ class ReferenceView(ctk.CTkFrame):
                     cur.execute("DELETE FROM contractors WHERE id = ?", (cont_id,))
                 self._load_contractors()
                 ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {e}", "error")
 
@@ -558,6 +564,8 @@ class ReferenceView(ctk.CTkFrame):
                     cur.execute("DELETE FROM directories WHERE id = ?", (nom_id,))
                 self._load_nom_types()
                 ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {e}", "error")
 
@@ -687,6 +695,8 @@ class ReferenceView(ctk.CTkFrame):
                     cur.execute("DELETE FROM parts WHERE id = ?", (part_id,))
                 self._load_parts()
                 ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {e}", "error")
 
@@ -816,6 +826,8 @@ class ReferenceView(ctk.CTkFrame):
                     cur.execute("DELETE FROM directories WHERE id = ?", (unit_id,))
                 self._load_units()
                 ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {e}", "error")
 

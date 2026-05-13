@@ -6,6 +6,8 @@
 ✅ СОВМЕСТИМО: Интеграция с системой тем и переводов
 """
 
+import sqlite3
+
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from typing import Optional, Callable, Dict, Any
@@ -361,6 +363,8 @@ class UsersView(ctk.CTkFrame):
             app_logger.info(f"👤 User deleted: {username} (ID: {user_id})")
             self._load_users()
             
+        except sqlite3.IntegrityError:
+            ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
         except Exception as e:
             app_logger.exception(f"❌ Error deleting user: {e}")
             ToastNotification(self, f"{get_text('error_deleting', self.lang)}: {e}", "error")
