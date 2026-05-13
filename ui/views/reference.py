@@ -831,7 +831,6 @@ class EmployeeDialog(ctk.CTkToplevel):
         self.geometry("500x600")
         self.minsize(450, 550)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -839,16 +838,16 @@ class EmployeeDialog(ctk.CTkToplevel):
         self.db = DatabaseConnection()
         self.employee_id = employee_id
         
-        # Центрирование
-        self.update_idletasks()
-        x = (self.winfo_screenwidth() - 500) // 2
-        y = (self.winfo_screenheight() - 600) // 2
-        self.geometry(f"+{x}+{y}")
-        
         self._build_ui()
         
         if employee_id:
             self._load_employee(employee_id)
+        
+        self.update_idletasks()
+        x = (self.winfo_screenwidth() - 500) // 2
+        y = (self.winfo_screenheight() - 600) // 2
+        self.geometry(f"+{x}+{y}")
+        self.grab_set()
     
     def _build_ui(self):
         """Построение интерфейса с валидацией"""
@@ -1051,7 +1050,6 @@ class ContractorDialog(ctk.CTkToplevel):
         self.geometry("500x600")
         self.minsize(450, 550)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -1062,6 +1060,9 @@ class ContractorDialog(ctk.CTkToplevel):
         
         if contractor_id:
             self._load_contractor(contractor_id)
+        
+        self.update_idletasks()
+        self.grab_set()
     
     def _build_ui(self):
         ctk.CTkLabel(
@@ -1188,7 +1189,6 @@ class EquipmentDialog(ctk.CTkToplevel):
         self.geometry("500x650")
         self.minsize(450, 600)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -1200,6 +1200,9 @@ class EquipmentDialog(ctk.CTkToplevel):
         
         if equipment_id:
             self._load_equipment(equipment_id)
+        
+        self.update_idletasks()
+        self.grab_set()
     
     def _build_ui(self):
         ctk.CTkLabel(
@@ -1371,7 +1374,6 @@ class NomTypeDialog(ctk.CTkToplevel):
         self.geometry("450x400")
         self.minsize(400, 350)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -1382,6 +1384,9 @@ class NomTypeDialog(ctk.CTkToplevel):
         
         if nom_type_id:
             self._load_nom_type(nom_type_id)
+        
+        self.update_idletasks()
+        self.grab_set()
     
     def _build_ui(self):
         ctk.CTkLabel(
@@ -1484,7 +1489,6 @@ class PartDialog(ctk.CTkToplevel):
         self.geometry("500x650")
         self.minsize(450, 600)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -1495,6 +1499,9 @@ class PartDialog(ctk.CTkToplevel):
         
         if part_id:
             self._load_part(part_id)
+        
+        self.update_idletasks()
+        self.grab_set()
     
     def _build_ui(self):
         ctk.CTkLabel(
@@ -1641,7 +1648,6 @@ class UnitDialog(ctk.CTkToplevel):
         self.geometry("400x400")
         self.minsize(350, 350)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -1652,6 +1658,9 @@ class UnitDialog(ctk.CTkToplevel):
         
         if unit_id:
             self._load_unit(unit_id)
+        
+        self.update_idletasks()
+        self.grab_set()
     
     def _build_ui(self):
         ctk.CTkLabel(

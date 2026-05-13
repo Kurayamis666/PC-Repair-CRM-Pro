@@ -67,23 +67,23 @@ class ReferenceEditorDialog(ctk.CTkToplevel):
         self.title(f"{title}: {initial_value}")
         
         self.geometry("400x260")
-        self.minsize(350, 240)  # ✅ Разрешить масштабирование
+        self.minsize(350, 240)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🎯 Центрирование относительно родителя
+        self._build_ui()
+        
+        # Устанавливаем исходное значение и фокус
+        if self._name_entry:
+            self._name_entry.insert(0, initial_value)
+            self.after(100, lambda: self._name_entry.focus_set() if self._name_entry else None)
+        
+        # Центрирование и модальность — после построения UI
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 400) // 2
         y = parent.winfo_y() + (parent.winfo_height() - 260) // 2
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
-        
-        self._build_ui()
-        
-        # ✅ Устанавливаем исходное значение и фокус
-        if self._name_entry:
-            self._name_entry.insert(0, initial_value)
-            self.after(100, lambda: self._name_entry.focus_set() if self._name_entry else None)
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""

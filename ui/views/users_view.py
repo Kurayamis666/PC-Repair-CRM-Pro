@@ -308,14 +308,12 @@ class UsersView(ctk.CTkFrame):
                     "success"
                 )
             
-            dialog = UserEditorDialog(
+            UserEditorDialog(
                 parent=self,
                 user_id=user_id,
                 lang=self.lang,
                 on_save=on_save
             )
-            dialog.transient(self)
-            dialog.grab_set()
             
         except ImportError as e:
             app_logger.error(f"❌ Could not import UserEditorDialog: {e}")

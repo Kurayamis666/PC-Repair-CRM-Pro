@@ -91,21 +91,20 @@ class RecordEditor(ctk.CTkToplevel):
         self.title(f"{title}: {table_label}")
         
         self.geometry("550x500")
-        self.minsize(480, 450)  # ✅ Адаптивный минимальный размер
+        self.minsize(480, 450)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🎯 Центрирование относительно родителя
+        self._build_ui()
+        
+        self.after(100, self._focus_first_field)
+        
+        # Центрирование и модальность — после построения UI
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 550) // 2
         y = parent.winfo_y() + (parent.winfo_height() - 500) // 2
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
-        
-        self._build_ui()
-        
-        # 🎯 Фокус на первое поле если есть
-        self.after(100, self._focus_first_field)
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с динамической генерацией полей"""

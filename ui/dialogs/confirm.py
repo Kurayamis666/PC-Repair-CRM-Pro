@@ -69,19 +69,16 @@ class ConfirmDialog(ctk.CTkToplevel):
         self.geometry(f"{width}x{height}")
         self.minsize(self.MIN_WIDTH, self.MIN_HEIGHT)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🎯 Надёжное центрирование
-        self._center_window(parent)
-        
-        # 🛡️ Обработчик закрытия окна (крестик = отмена)
         self.protocol("WM_DELETE_WINDOW", self._cancel)
         
         self._build_ui(message, danger)
-        
-        # 🎯 Управление фокусом
         self._setup_focus(focus_confirm)
+        
+        # Центрирование и модальность — после построения UI
+        self._center_window(parent)
+        self.grab_set()
         
         # ⌨️ Горячие клавиши
         self._bind_hotkeys()

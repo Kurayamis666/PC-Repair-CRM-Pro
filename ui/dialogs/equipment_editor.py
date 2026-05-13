@@ -78,24 +78,23 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
         self.title(title)
         
         self.geometry("480x450")
-        self.minsize(420, 400)  # ✅ Адаптивный минимальный размер
+        self.minsize(420, 400)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
-        
-        # 🎯 Центрирование относительно родителя
-        self.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() - 480) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 450) // 2
-        self.geometry(f"+{max(0, x)}+{max(0, y)}")
         
         self._build_ui()
         
-        # 🎯 Фокус на поле модели
         self.after(100, lambda: self._model_entry.focus_set() if self._model_entry else None)
         
         if equipment_id:
             self._load_data()
+        
+        # Центрирование и модальность — после построения UI
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - 480) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 450) // 2
+        self.geometry(f"+{max(0, x)}+{max(0, y)}")
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""

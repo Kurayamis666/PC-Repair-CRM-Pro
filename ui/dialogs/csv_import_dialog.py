@@ -74,18 +74,18 @@ class CsvImportDialog(ctk.CTkToplevel):
         self.title(title)
         
         self.geometry("850x650")
-        self.minsize(750, 550)  # ✅ Адаптивный минимальный размер
+        self.minsize(750, 550)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🎯 Центрирование
+        self._build_ui()
+        
+        # Центрирование и модальность — после построения UI
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 850) // 2
         y = parent.winfo_y() + (parent.winfo_height() - 650) // 2
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
-        
-        self._build_ui()
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
