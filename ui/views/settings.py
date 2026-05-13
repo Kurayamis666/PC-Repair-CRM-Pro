@@ -545,7 +545,7 @@ class SettingsView(ctk.CTkFrame):
                 try:
                     if cur.execute("SELECT COUNT(*) FROM users WHERE username = 'admin'").fetchone()[0] == 0:
                         pwd_hash, salt = hash_password('123')
-                        cur.execute("INSERT INTO users (id, username, password, role, full_name, password_salt, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)", 
+                        cur.execute("INSERT INTO users (id, username, password, role, full_name, password_salt, branch_id, is_active) VALUES (?, ?, ?, ?, ?, ?, 1, 1)", 
                                     (1, 'admin', pwd_hash, 'admin', 'Главный Администратор', salt))
                 except Exception as e: 
                     app_logger.warning(f"⚠️ User insert skipped: {e}")

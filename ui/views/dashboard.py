@@ -386,7 +386,6 @@ class DashboardView(ctk.CTkFrame):
         dialog.title(get_text("mass_status", self.lang))
         dialog.geometry("350x220")
         dialog.transient(self)
-        dialog.grab_set()
         dialog.configure(fg_color=ColorTheme.BG_CARD)
 
         ctk.CTkLabel(
@@ -432,6 +431,12 @@ class DashboardView(ctk.CTkFrame):
             width=200,
             height=35
         ).pack(pady=10)
+
+        dialog.update_idletasks()
+        x = (dialog.winfo_screenwidth() - 350) // 2
+        y = (dialog.winfo_screenheight() - 220) // 2
+        dialog.geometry(f"+{x}+{y}")
+        dialog.grab_set()
 
     def _execute_mass_status_update(self, items, new_status: str) -> None:
         """Выполняет SQL запрос на обновление статусов выбранных заявок"""
