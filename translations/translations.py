@@ -179,6 +179,7 @@ _COMMON_TRANSLATIONS: Dict[Language, TranslationsDict] = {
         "password_min_length": "Мин. длина пароля",
         # === Оборудование (дополнительно) ===
         "delete_equipment_confirm": "Удалить оборудование?",
+        "delete_request_confirm": "Удалить заявку?",
         # === Валидация (дополнительно) ===
         "name_exists": "Такое название уже существует",
         "name_too_short": "Название слишком короткое",
@@ -410,6 +411,7 @@ _COMMON_TRANSLATIONS: Dict[Language, TranslationsDict] = {
         "password_min_length": "Min. password length",
         # === Equipment (extra) ===
         "delete_equipment_confirm": "Delete equipment?",
+        "delete_request_confirm": "Delete request?",
         # === Validation (extra) ===
         "name_exists": "This name already exists",
         "name_too_short": "Name is too short",
