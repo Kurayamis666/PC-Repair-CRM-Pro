@@ -102,84 +102,98 @@ class RequestEditorDialog(ctk.CTkToplevel):
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
         
-        # 🏷️ Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0, height=60)
+        # Заголовок с акцентом
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
         header.pack(fill="x")
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=16, pady=(8, 0))
         ctk.CTkLabel(
             header,
             text=self.title(),
             font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(pady=15)
+        ).pack(pady=(8, 12))
         
-        # 📋 Скроллируемая форма
+        # Скроллируемая форма
         scroll_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        scroll_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        scroll_frame.pack(fill="both", expand=True, padx=20, pady=16)
         
-        # 👤 Сотрудник (бывш. клиент) - ✅ БЕЗ textvariable
+        # Сотрудник
         ctk.CTkLabel(
             scroll_frame, 
-            text=f"{get_text('select_employee', self.lang)} *",  # ✅ Переведено
+            text=f"👤  {get_text('select_employee', self.lang)} *",
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(0, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(0, 4))
         
         self._client_combo = ctk.CTkComboBox(
             scroll_frame,
             values=[],
-            width=420,
             height=40,
             fg_color=ColorTheme.BG_INPUT,
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
             command=self._on_employee_change,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
         )
-        self._client_combo.pack(pady=5)
+        self._client_combo.pack(fill="x", pady=4)
         
-        # 💻 Оборудование
+        # Оборудование
         ctk.CTkLabel(
             scroll_frame, 
-            text=get_text("equipment", self.lang), 
+            text="💻  " + get_text("equipment", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(15, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(12, 4))
         
         self._equipment_combo = ctk.CTkComboBox(
             scroll_frame,
             values=[get_text("no_equipment", self.lang) or "—"],
-            width=420,
             height=40,
             fg_color=ColorTheme.BG_INPUT,
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
-            state="disabled"  # Включится после выбора сотрудника
+            state="disabled",
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
         )
-        self._equipment_combo.pack(pady=5)
+        self._equipment_combo.pack(fill="x", pady=4)
         
-        # 📝 Описание проблемы
+        # Описание проблемы
         ctk.CTkLabel(
             scroll_frame, 
-            text=f"{get_text('problem_desc', self.lang)} *", 
+            text=f"📝  {get_text('problem_desc', self.lang)} *", 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(15, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(12, 4))
         
         self._problem_desc = ctk.CTkTextbox(
             scroll_frame, 
             height=100, 
             fg_color=ColorTheme.BG_INPUT, 
             text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._problem_desc.pack(pady=5)
+        self._problem_desc.pack(fill="x", pady=4)
         self._problem_desc.bind("<KeyRelease>", lambda e: self._validate_problem_length())
         
-        # 🎭 Статус
+        # Статус
         ctk.CTkLabel(
             scroll_frame, 
-            text=get_text("status", self.lang), 
+            text="🎭  " + get_text("status", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(15, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(12, 4))
         
         # ✅ Перевод статусов для отображения
         status_values = [
@@ -196,71 +210,97 @@ class RequestEditorDialog(ctk.CTkToplevel):
             scroll_frame,
             values=status_values,
             variable=self._status_var,
-            width=200,
             height=40,
             fg_color=ColorTheme.BG_INPUT,
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
         )
-        self._status_menu.pack(pady=5)
+        self._status_menu.pack(fill="x", pady=4)
         
-        # 💰 Стоимость
-        costs_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
-        costs_frame.pack(fill="x", pady=10)
+        # Стоимость в карточке
+        ctk.CTkLabel(
+            scroll_frame, 
+            text="💰  " + (get_text("total_cost", self.lang) or "Стоимость"),
+            text_color=ColorTheme.TEXT_PRIMARY,
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(12, 4))
         
-        ctk.CTkLabel(costs_frame, text=get_text("labor_cost", self.lang) + ":", text_color=ColorTheme.TEXT_PRIMARY).pack(side="left")
-        self._labor_entry = ctk.CTkEntry(costs_frame, width=100, height=35, fg_color=ColorTheme.BG_INPUT, text_color=ColorTheme.TEXT_PRIMARY)
-        self._labor_entry.pack(side="left", padx=10)
+        costs_card = ctk.CTkFrame(scroll_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12, border_width=1, border_color=ColorTheme.BORDER)
+        costs_card.pack(fill="x", pady=4)
+        costs_inner = ctk.CTkFrame(costs_card, fg_color="transparent")
+        costs_inner.pack(fill="x", padx=12, pady=10)
+        
+        # Работа
+        labor_frame = ctk.CTkFrame(costs_inner, fg_color="transparent")
+        labor_frame.pack(side="left", fill="x", expand=True)
+        ctk.CTkLabel(labor_frame, text=get_text("labor_cost", self.lang), text_color=ColorTheme.TEXT_SECONDARY, font=ctk.CTkFont(size=11)).pack(anchor="w")
+        self._labor_entry = ctk.CTkEntry(labor_frame, height=36, fg_color=ColorTheme.BG_INPUT, text_color=ColorTheme.TEXT_PRIMARY, corner_radius=8, border_width=1, border_color=ColorTheme.BORDER)
+        self._labor_entry.pack(fill="x", pady=(2, 0))
         self._labor_entry.insert(0, "0")
         self._labor_entry.bind("<KeyRelease>", lambda e: self._recalculate_total())
         
-        ctk.CTkLabel(costs_frame, text=get_text("parts_cost", self.lang) + ":", text_color=ColorTheme.TEXT_PRIMARY).pack(side="left", padx=(20, 0))
-        self._parts_entry = ctk.CTkEntry(costs_frame, width=100, height=35, fg_color=ColorTheme.BG_INPUT, text_color=ColorTheme.TEXT_PRIMARY)
-        self._parts_entry.pack(side="left", padx=10)
+        # Запчасти
+        parts_frame = ctk.CTkFrame(costs_inner, fg_color="transparent")
+        parts_frame.pack(side="left", fill="x", expand=True, padx=(12, 0))
+        ctk.CTkLabel(parts_frame, text=get_text("parts_cost", self.lang), text_color=ColorTheme.TEXT_SECONDARY, font=ctk.CTkFont(size=11)).pack(anchor="w")
+        self._parts_entry = ctk.CTkEntry(parts_frame, height=36, fg_color=ColorTheme.BG_INPUT, text_color=ColorTheme.TEXT_PRIMARY, corner_radius=8, border_width=1, border_color=ColorTheme.BORDER)
+        self._parts_entry.pack(fill="x", pady=(2, 0))
         self._parts_entry.insert(0, "0")
         self._parts_entry.bind("<KeyRelease>", lambda e: self._recalculate_total())
         
-        ctk.CTkLabel(costs_frame, text=get_text("total_cost", self.lang) + ":", text_color=ColorTheme.PRIMARY).pack(side="left", padx=(20, 0))
+        # Итого
+        total_frame = ctk.CTkFrame(costs_inner, fg_color="transparent")
+        total_frame.pack(side="left", padx=(12, 0))
+        ctk.CTkLabel(total_frame, text=get_text("total_cost", self.lang), text_color=ColorTheme.PRIMARY, font=ctk.CTkFont(size=11, weight="bold")).pack(anchor="w")
         self._total_label = ctk.CTkLabel(
-            costs_frame, 
+            total_frame, 
             text="0 ₽", 
-            font=ctk.CTkFont(weight="bold", size=14), 
+            font=ctk.CTkFont(weight="bold", size=16), 
             text_color=ColorTheme.SUCCESS
         )
-        self._total_label.pack(side="left", padx=10)
+        self._total_label.pack(anchor="w", pady=(2, 0))
         
-        # 📅 Плановая дата
+        # Плановая дата
         ctk.CTkLabel(
             scroll_frame, 
-            text=get_text("planned_date", self.lang), 
+            text="📅  " + get_text("planned_date", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(15, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(12, 4))
         
         date_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
-        date_frame.pack(fill="x", pady=5)
+        date_frame.pack(fill="x", pady=4)
         
         self._date_entry = ctk.CTkEntry(
             date_frame, 
             placeholder_text="YYYY-MM-DD", 
-            width=200, 
-            height=35,
+            height=40,
             fg_color=ColorTheme.BG_INPUT, 
-            text_color=ColorTheme.TEXT_PRIMARY
+            text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._date_entry.pack(side="left")
+        self._date_entry.pack(side="left", fill="x", expand=True)
         self._date_entry.insert(0, (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d"))
         self._date_entry.bind("<KeyRelease>", lambda e: self._validate_date_format())
         
         ctk.CTkButton(
             date_frame, 
-            text=get_text("select_date", self.lang), 
+            text="📅 " + get_text("select_date", self.lang), 
             command=self._select_date, 
-            width=150, 
-            height=35, 
+            width=140, 
+            height=40, 
             fg_color=ColorTheme.INFO,
-            hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
-        ).pack(side="left", padx=10)
+            hover_color=ColorUtils.darken(ColorTheme.INFO, 15),
+            corner_radius=10,
+            font=ctk.CTkFont(size=12),
+        ).pack(side="left", padx=(8, 0))
         
         # ⏳ Индикатор загрузки (скрыт по умолчанию)
         self._loading_label = ctk.CTkLabel(
@@ -271,33 +311,37 @@ class RequestEditorDialog(ctk.CTkToplevel):
         )
         self._loading_label.pack(pady=5)
         
-        # 🔘 Кнопки
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=20)
+        # Разделитель
+        ctk.CTkFrame(self, fg_color=ColorTheme.BORDER, height=1).pack(fill="x", padx=16)
         
-        self._save_btn = ctk.CTkButton(
-            btn_frame, 
-            text="💾 " + get_text("save", self.lang), 
-            command=self._save_request, 
-            width=150, 
-            height=40, 
-            fg_color=ColorTheme.SUCCESS, 
-            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
-            text_color=ColorTheme.TEXT_PRIMARY,
-            font=ctk.CTkFont(weight="bold")
-        )
-        self._save_btn.pack(side="right", padx=10)
+        # Кнопки
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=16)
         
         ctk.CTkButton(
             btn_frame, 
             text=get_text("cancel", self.lang), 
             command=self.destroy, 
-            width=150, 
-            height=40, 
-            fg_color=ColorTheme.TEXT_SECONDARY, 
-            hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
-            text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(side="right", padx=10)
+            height=42, 
+            fg_color=ColorTheme.BG_INPUT, 
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
+            text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
+        ).pack(side="left", padx=6, fill="x", expand=True)
+        
+        self._save_btn = ctk.CTkButton(
+            btn_frame, 
+            text="💾 " + get_text("save", self.lang), 
+            command=self._save_request, 
+            height=42, 
+            fg_color=ColorTheme.SUCCESS, 
+            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 15),
+            text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13, weight="bold"),
+        )
+        self._save_btn.pack(side="left", padx=6, fill="x", expand=True)
     
     def _set_loading(self, loading: bool) -> None:
         """Показать/скрыть индикатор загрузки"""

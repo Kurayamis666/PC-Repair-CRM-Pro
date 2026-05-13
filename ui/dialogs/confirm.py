@@ -133,60 +133,67 @@ class ConfirmDialog(ctk.CTkToplevel):
     def _build_ui(self, message: str, danger: bool) -> None:
         """Построение интерфейса с адаптивным сообщением"""
         
-        # ⚠️ Визуальный индикатор для опасных действий
-        display_message = message
-        if danger:
-            display_message = f"⚠️ {message}"
+        # Верхняя акцентная полоса
+        accent_color = ColorTheme.ERROR if danger else ColorTheme.PRIMARY
+        accent = ctk.CTkFrame(self, fg_color=accent_color, height=4, corner_radius=0)
+        accent.pack(fill="x")
         
-        # ✅ Центрирование для коротких сообщений
-        justify = "center" if len(message) < 80 else "left"
-        wraplength = min(320, self.winfo_width() - self.PADDING_X * 2) if self.winfo_width() > 0 else 320
-        
-        # 📝 Сообщение
+        # Иконка
+        icon = "⚠️" if danger else "❓"
         ctk.CTkLabel(
             self,
-            text=display_message,
+            text=icon,
+            font=ctk.CTkFont(size=36),
+        ).pack(pady=(16, 4))
+        
+        # Сообщение
+        justify = "center" if len(message) < 80 else "left"
+        wraplength = min(350, self.winfo_width() - self.PADDING_X * 2) if self.winfo_width() > 0 else 350
+        
+        ctk.CTkLabel(
+            self,
+            text=message,
             font=ctk.CTkFont(size=14),
             text_color=ColorTheme.TEXT_PRIMARY,
             justify=justify,
             wraplength=wraplength,
-        ).pack(pady=25, padx=self.PADDING_X, fill="x")
+        ).pack(pady=(4, 16), padx=self.PADDING_X, fill="x")
         
-        # 🔘 Кнопки
+        # Разделитель
+        ctk.CTkFrame(self, fg_color=ColorTheme.BORDER, height=1).pack(fill="x", padx=16)
+        
+        # Кнопки
         buttons_frame = ctk.CTkFrame(self, fg_color="transparent")
-        buttons_frame.pack(pady=15)
+        buttons_frame.pack(pady=16, fill="x", padx=20)
         
-        # Кнопка отмены
         self._cancel_btn = ctk.CTkButton(
             buttons_frame,
             text=self._cancel_text,
             command=self._cancel,
-            width=120,
-            height=35,
-            fg_color=ColorTheme.TEXT_SECONDARY,
-            hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
+            height=38,
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
             corner_radius=10,
             text_color=ColorTheme.TEXT_PRIMARY,
+            font=ctk.CTkFont(size=13),
         )
-        self._cancel_btn.pack(side="left", padx=10)
+        self._cancel_btn.pack(side="left", padx=6, fill="x", expand=True)
         
-        # Кнопка подтверждения
         confirm_color = ColorTheme.ERROR if danger else ColorTheme.SUCCESS
-        confirm_hover = ColorUtils.darken(confirm_color, 10)
+        confirm_hover = ColorUtils.darken(confirm_color, 15)
         
         self._confirm_btn = ctk.CTkButton(
             buttons_frame,
             text=self._confirm_text,
             command=self._confirm,
-            width=120,
-            height=35,
+            height=38,
             fg_color=confirm_color,
             hover_color=confirm_hover,
             corner_radius=10,
             text_color=ColorTheme.TEXT_PRIMARY,
-            font=ctk.CTkFont(weight="bold") if danger else None,
+            font=ctk.CTkFont(size=13, weight="bold"),
         )
-        self._confirm_btn.pack(side="left", padx=10)
+        self._confirm_btn.pack(side="left", padx=6, fill="x", expand=True)
     
     def _setup_focus(self, focus_confirm: Optional[bool]) -> None:
         """Установка фокуса на нужную кнопку"""

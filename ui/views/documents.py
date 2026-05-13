@@ -36,25 +36,27 @@ class DocumentsView(ctk.CTkFrame):
     
     def _build_ui(self) -> None:
         """Построение интерфейса"""
-        # Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        # Заголовок с акцентом
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=14)
         header.pack(fill="x", padx=10, pady=(5, 0))
+        accent_top = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent_top.pack(fill="x", padx=20, pady=(8, 0))
         ctk.CTkLabel(
-            header, text=get_text("documents", self.lang),
+            header, text="📄 " + get_text("documents", self.lang),
             font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=12)
+        ).pack(pady=(8, 10))
         
         # Кнопка назад
         ctk.CTkButton(
-            self, text=get_text("back", self.lang),
+            self, text="⬅ " + get_text("back", self.lang),
             command=lambda: self.on_navigate("dashboard") if self.on_navigate else None,
             width=120, height=32, 
             fg_color=ColorTheme.BG_INPUT,
-            hover_color=ColorTheme.BG_HOVER,
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
             corner_radius=10,
             font=ctk.CTkFont(size=12)
-        ).pack(padx=20, pady=(12, 5), anchor="w")
+        ).pack(padx=20, pady=(10, 5), anchor="w")
         
         # Вкладки
         self.notebook = ctk.CTkTabview(self, fg_color="transparent")

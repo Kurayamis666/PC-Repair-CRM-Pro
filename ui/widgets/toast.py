@@ -222,17 +222,21 @@ class ToastNotification:
             self.window.geometry(f"{width}x{self.height}+{x}+{y}")
             self.window.attributes("-topmost", True)
             
-            # 🎨 Основной фрейм с границей
+            # Основной фрейм с границей
             frame = ctk.CTkFrame(
                 self.window,
                 fg_color=ColorTheme.BG_CARD,
                 border_color=border_color,
                 border_width=2,
-                corner_radius=12,
+                corner_radius=14,
             )
             frame.pack(fill="both", expand=True, padx=4, pady=4)
             
-            # 🟦 Цветной индикатор слева
+            # Верхняя акцентная полоса
+            accent_bar = ctk.CTkFrame(frame, fg_color=border_color, height=3, corner_radius=2)
+            accent_bar.pack(fill="x", padx=12, pady=(8, 0))
+            
+            # Цветной индикатор слева
             ctk.CTkFrame(
                 frame, 
                 fg_color=border_color, 
@@ -248,12 +252,15 @@ class ToastNotification:
             header_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
             header_frame.pack(fill="x")
             
+            # Иконка в круглом бейдже
+            icon_badge = ctk.CTkFrame(header_frame, fg_color=border_color, width=28, height=28, corner_radius=14)
+            icon_badge.pack(side="left", padx=(0, 8))
+            icon_badge.pack_propagate(False)
             ctk.CTkLabel(
-                header_frame,
+                icon_badge,
                 text=self.ICONS[self.level],
-                font=ctk.CTkFont(size=14),
-                text_color=border_color,
-            ).pack(side="left", padx=(0, 8))
+                font=ctk.CTkFont(size=13),
+            ).pack(expand=True)
             
             ctk.CTkLabel(
                 header_frame,
@@ -261,7 +268,7 @@ class ToastNotification:
                 text_color=ColorTheme.TEXT_PRIMARY,
                 font=ctk.CTkFont(size=13, weight="bold"),
                 justify="left",
-                wraplength=240,  # Перенос длинных сообщений
+                wraplength=230,
             ).pack(side="left", fill="x", expand=True)
             
             # 🔘 Кнопка действия (если указана)

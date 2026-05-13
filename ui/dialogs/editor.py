@@ -109,24 +109,28 @@ class RecordEditor(ctk.CTkToplevel):
     def _build_ui(self) -> None:
         """Построение интерфейса с динамической генерацией полей"""
         
-        # 🏷️ Заголовок
+        # Заголовок с акцентом
         header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
         header.pack(fill="x")
+        
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=16, pady=(8, 0))
         
         title_key = "edit_record" if self.record_id else "create_record"
         title = get_text(title_key, self.lang) or ("✏️ Редактирование" if self.record_id else "➕ Создание")
         table_label = get_text(f"table_{self.table_name}", self.lang) or self.table_name
         
+        icon = "✏️" if self.record_id else "➕"
         ctk.CTkLabel(
             header,
-            text=f"{title}: {table_label}",
+            text=f"{icon} {title}: {table_label}",
             font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(pady=15)
+        ).pack(pady=(8, 12))
         
-        # 📋 Скроллируемая форма
+        # Скроллируемая форма
         form_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        form_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        form_frame.pack(fill="both", expand=True, padx=20, pady=16)
         
         # ✅ Динамическая генерация полей на основе схемы
         if self.schema:
@@ -144,32 +148,37 @@ class RecordEditor(ctk.CTkToplevel):
         )
         self._loading_label.pack(pady=5)
         
-        # 🔘 Кнопки
+        # Разделитель перед кнопками
+        ctk.CTkFrame(self, fg_color=ColorTheme.BORDER, height=1).pack(fill="x", padx=16)
+        
+        # Кнопки
         buttons_frame = ctk.CTkFrame(self, fg_color="transparent")
-        buttons_frame.pack(fill="x", padx=20, pady=20)
+        buttons_frame.pack(fill="x", padx=20, pady=16)
         
         ctk.CTkButton(
             buttons_frame,
             text=get_text("cancel", self.lang),
             command=self.destroy,
-            width=120,
-            height=35,
-            fg_color=ColorTheme.TEXT_SECONDARY,
-            hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
+            height=38,
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(side="left", padx=10)
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
+        ).pack(side="left", padx=6, fill="x", expand=True)
         
         self._save_btn = ctk.CTkButton(
             buttons_frame,
             text="💾 " + get_text("save", self.lang),
             command=self._save,
-            width=120,
-            height=35,
+            height=38,
             fg_color=ColorTheme.SUCCESS,
-            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 15),
             text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13, weight="bold"),
         )
-        self._save_btn.pack(side="right", padx=10)
+        self._save_btn.pack(side="left", padx=6, fill="x", expand=True)
     
     def _build_dynamic_form(self, parent) -> None:
         """Построение формы на основе схемы таблицы"""
@@ -189,56 +198,32 @@ class RecordEditor(ctk.CTkToplevel):
                 parent,
                 text=label_text,
                 text_color=ColorTheme.TEXT_PRIMARY,
-                anchor="w"
-            ).pack(anchor="w", pady=(10, 5))
+                anchor="w",
+                font=ctk.CTkFont(size=13, weight="bold"),
+            ).pack(anchor="w", pady=(10, 4))
             
-            # ✅ Создание поля ввода в зависимости от типа
-            if field_type == "text":
-                entry = ctk.CTkEntry(
-                    parent,
-                    placeholder_text=get_text(f"{field_name}_placeholder", self.lang),
-                    width=self.DEFAULT_FIELD_WIDTH,
-                    height=self.DEFAULT_FIELD_HEIGHT,
-                    fg_color=ColorTheme.BG_INPUT,
-                    text_color=ColorTheme.TEXT_PRIMARY,
-                )
-            elif field_type == "number":
-                entry = ctk.CTkEntry(
-                    parent,
-                    placeholder_text="0",
-                    width=self.DEFAULT_FIELD_WIDTH,
-                    height=self.DEFAULT_FIELD_HEIGHT,
-                    fg_color=ColorTheme.BG_INPUT,
-                    text_color=ColorTheme.TEXT_PRIMARY,
-                )
-            elif field_type == "email":
-                entry = ctk.CTkEntry(
-                    parent,
-                    placeholder_text="user@example.com",
-                    width=self.DEFAULT_FIELD_WIDTH,
-                    height=self.DEFAULT_FIELD_HEIGHT,
-                    fg_color=ColorTheme.BG_INPUT,
-                    text_color=ColorTheme.TEXT_PRIMARY,
-                )
-            elif field_type == "phone":
-                entry = ctk.CTkEntry(
-                    parent,
-                    placeholder_text="+7 (999) 123-45-67",
-                    width=self.DEFAULT_FIELD_WIDTH,
-                    height=self.DEFAULT_FIELD_HEIGHT,
-                    fg_color=ColorTheme.BG_INPUT,
-                    text_color=ColorTheme.TEXT_PRIMARY,
-                )
-            else:
-                entry = ctk.CTkEntry(
-                    parent,
-                    width=self.DEFAULT_FIELD_WIDTH,
-                    height=self.DEFAULT_FIELD_HEIGHT,
-                    fg_color=ColorTheme.BG_INPUT,
-                    text_color=ColorTheme.TEXT_PRIMARY,
-                )
+            placeholders = {
+                "text": get_text(f"{field_name}_placeholder", self.lang),
+                "number": "0",
+                "email": "user@example.com",
+                "phone": "+7 (999) 123-45-67",
+            }
+            placeholder = placeholders.get(field_type, "")
             
-            entry.pack(fill="x", pady=5)
+            entry = ctk.CTkEntry(
+                parent,
+                placeholder_text=placeholder,
+                height=40,
+                fg_color=ColorTheme.BG_INPUT,
+                text_color=ColorTheme.TEXT_PRIMARY,
+                corner_radius=10,
+                border_width=2,
+                border_color=ColorTheme.BORDER,
+                font=ctk.CTkFont(size=13),
+            )
+            entry.pack(fill="x", pady=4)
+            entry.bind("<FocusIn>", lambda e, w=entry: w.configure(border_color=ColorTheme.PRIMARY))
+            entry.bind("<FocusOut>", lambda e, w=entry: w.configure(border_color=ColorTheme.BORDER))
             
             # ✅ Сохраняем ссылку на поле и конфигурацию для валидации
             self._fields[field_name] = {

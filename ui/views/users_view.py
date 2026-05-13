@@ -57,26 +57,30 @@ class UsersView(ctk.CTkFrame):
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
         
-        # 🏷️ Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
-        header.pack(fill="x")
+        # Заголовок с акцентом
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=14)
+        header.pack(fill="x", padx=10, pady=(5, 0))
+        accent_top = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent_top.pack(fill="x", padx=20, pady=(8, 0))
         ctk.CTkLabel(
             header,
-            text=get_text("manage_users", self.lang) or "👥 Управление пользователями",
-            font=ctk.CTkFont(size=24, weight="bold"),
+            text="👥 " + (get_text("manage_users", self.lang) or "Управление пользователями"),
+            font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(pady=15)
+        ).pack(pady=(8, 10))
         
-        # 🔙 Кнопка назад
+        # Кнопка назад
         ctk.CTkButton(
             self,
-            text=get_text("back", self.lang),
+            text="⬅ " + get_text("back", self.lang),
             command=self._go_back,
             width=120,
-            height=35,
-            fg_color=ColorTheme.TEXT_SECONDARY,
+            height=32,
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
             corner_radius=10,
-        ).pack(padx=20, pady=10, anchor="w")
+            font=ctk.CTkFont(size=12),
+        ).pack(padx=20, pady=(10, 5), anchor="w")
         
         # 🎛️ Панель действий + поиск
         control_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -93,7 +97,9 @@ class UsersView(ctk.CTkFrame):
             width=130,
             height=35,
             fg_color=ColorTheme.SUCCESS,
-            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 15),
+            corner_radius=10,
+            font=ctk.CTkFont(size=12, weight="bold"),
         ).pack(side="left", padx=3)
         
         ctk.CTkButton(
@@ -103,7 +109,9 @@ class UsersView(ctk.CTkFrame):
             width=130,
             height=35,
             fg_color=ColorTheme.INFO,
-            hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+            hover_color=ColorUtils.darken(ColorTheme.INFO, 15),
+            corner_radius=10,
+            font=ctk.CTkFont(size=12),
         ).pack(side="left", padx=3)
         
         ctk.CTkButton(

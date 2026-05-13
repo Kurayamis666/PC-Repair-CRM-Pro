@@ -99,27 +99,30 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
         
-        # 🏷️ Заголовок
+        # Заголовок с акцентом
         header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
         header.pack(fill="x")
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=16, pady=(8, 0))
         ctk.CTkLabel(
             header,
-            text=self.title(),
+            text="💻 " + self.title(),
             font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(pady=15)
+        ).pack(pady=(8, 12))
         
-        # 📋 Скроллируемая форма
+        # Форма
         form = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        form.pack(fill="both", expand=True, padx=20, pady=20)
+        form.pack(fill="both", expand=True, padx=20, pady=16)
         
-        # 👤 Сотрудник (бывш. клиент) - ✅ С маппингом
+        # Сотрудник
         ctk.CTkLabel(
             form, 
-            text=f"{get_text('select_employee', self.lang)} *",  # ✅ Переведено
+            text=f"👤  {get_text('select_employee', self.lang)} *",
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         # ✅ Создаём маппинг: отображаемое значение → значение для БД
         employee_values = []
@@ -127,25 +130,28 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
         
         self._client_menu = ctk.CTkOptionMenu(
             form,
-            values=[],  # Заполнится в _load_employees()
-            variable=ctk.StringVar(),  # Временная переменная
+            values=[],
+            variable=ctk.StringVar(),
             fg_color=ColorTheme.BG_INPUT,
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
             height=40,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
         )
-        self._client_menu.pack(fill="x", pady=5)
+        self._client_menu.pack(fill="x", pady=4)
         
         # Загружаем сотрудников асинхронно
         self.after(10, self._load_employees)
         
-        # 📱 Модель
+        # Модель
         ctk.CTkLabel(
             form, 
-            text=f"{get_text('model', self.lang)} *", 
+            text=f"📱  {get_text('model', self.lang)} *", 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         self._model_entry = ctk.CTkEntry(
             form, 
@@ -153,17 +159,24 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
             fg_color=ColorTheme.BG_INPUT, 
             text_color=ColorTheme.TEXT_PRIMARY,
             height=40,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._model_entry.pack(fill="x", pady=5)
+        self._model_entry.pack(fill="x", pady=4)
         self._model_entry.bind("<KeyRelease>", lambda e: self._validate_model_length())
+        self._model_entry.bind("<FocusIn>", lambda e: self._model_entry.configure(border_color=ColorTheme.PRIMARY))
+        self._model_entry.bind("<FocusOut>", lambda e: self._model_entry.configure(border_color=ColorTheme.BORDER))
         
-        # 🔢 Серийный номер
+        # Серийный номер
         ctk.CTkLabel(
             form, 
-            text=get_text("serial_number", self.lang), 
+            text="🔢  " + get_text("serial_number", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         self._sn_entry = ctk.CTkEntry(
             form, 
@@ -171,16 +184,23 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
             fg_color=ColorTheme.BG_INPUT, 
             text_color=ColorTheme.TEXT_PRIMARY,
             height=40,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._sn_entry.pack(fill="x", pady=5)
+        self._sn_entry.pack(fill="x", pady=4)
+        self._sn_entry.bind("<FocusIn>", lambda e: self._sn_entry.configure(border_color=ColorTheme.PRIMARY))
+        self._sn_entry.bind("<FocusOut>", lambda e: self._sn_entry.configure(border_color=ColorTheme.BORDER))
         
-        # 🔧 Тип устройства (с переводом)
+        # Тип устройства
         ctk.CTkLabel(
             form, 
-            text=get_text("device_type", self.lang), 
+            text="🔧  " + get_text("device_type", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         # ✅ Создаём маппинг типов: отображаемое → значение для БД
         type_values = []
@@ -200,8 +220,10 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
             height=40,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
         )
-        self._type_menu.pack(fill="x", pady=5)
+        self._type_menu.pack(fill="x", pady=4)
         
         # ⏳ Индикатор загрузки (скрыт по умолчанию)
         self._loading_label = ctk.CTkLabel(
@@ -212,32 +234,37 @@ class EquipmentEditorDialog(ctk.CTkToplevel):
         )
         self._loading_label.pack(pady=5)
         
-        # 🔘 Кнопки
+        # Разделитель
+        ctk.CTkFrame(self, fg_color=ColorTheme.BORDER, height=1).pack(fill="x", padx=16)
+        
+        # Кнопки
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=20)
+        btn_frame.pack(fill="x", padx=20, pady=16)
         
         ctk.CTkButton(
             btn_frame, 
             text=get_text("cancel", self.lang), 
             command=self.destroy,
-            width=150, 
-            height=35, 
-            fg_color=ColorTheme.TEXT_SECONDARY,
-            hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
-            text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(side="left", padx=10)
+            height=38, 
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
+            text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
+        ).pack(side="left", padx=6, fill="x", expand=True)
         
         self._save_btn = ctk.CTkButton(
             btn_frame, 
             text="💾 " + get_text("save", self.lang), 
             command=self._save,
-            width=150, 
-            height=35, 
+            height=38, 
             fg_color=ColorTheme.SUCCESS,
-            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
-            text_color=ColorTheme.TEXT_PRIMARY
+            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 15),
+            text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13, weight="bold"),
         )
-        self._save_btn.pack(side="right", padx=10)
+        self._save_btn.pack(side="left", padx=6, fill="x", expand=True)
     
     def _set_loading(self, loading: bool) -> None:
         """Показать/скрыть индикатор загрузки"""
