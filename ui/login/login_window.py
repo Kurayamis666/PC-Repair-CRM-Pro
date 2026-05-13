@@ -51,9 +51,9 @@ class LoginWindow(ctk.CTkToplevel):
         
         # 🎨 Настройка окна
         self.title(get_text("login", self.lang) or "Вход в систему")
-        self.geometry("400x500")
-        self.minsize(350, 450)
-        self.configure(fg_color=ColorTheme.BG_CARD)
+        self.geometry("440x560")
+        self.minsize(400, 520)
+        self.configure(fg_color=ColorTheme.BG_DARK)
         
         # 🔐 Репозиторий пользователей
         self.db = DatabaseConnection()
@@ -72,100 +72,123 @@ class LoginWindow(ctk.CTkToplevel):
     
     def _build_ui(self) -> None:
         """Построение интерфейса окна входа"""
-        # Лого и заголовок
+        # Верхняя декоративная полоска
+        top_accent = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, height=4, corner_radius=0)
+        top_accent.pack(fill="x")
+        
+        # Лого и заголовок в красивой карточке
         header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
         header.pack(fill="x")
+        
+        # Иконка в круглом бейдже
+        icon_badge = ctk.CTkFrame(header, fg_color=ColorTheme.PRIMARY_HOVER, width=64, height=64, corner_radius=32)
+        icon_badge.pack(pady=(24, 8))
+        icon_badge.pack_propagate(False)
         ctk.CTkLabel(
-            header,
+            icon_badge,
             text="🛠️",
-            font=ctk.CTkFont(size=36)
-        ).pack(pady=(20, 4))
+            font=ctk.CTkFont(size=28)
+        ).pack(expand=True)
+        
         ctk.CTkLabel(
             header,
             text="PC Repair CRM Pro",
-            font=ctk.CTkFont(size=18, weight="bold"),
+            font=ctk.CTkFont(size=20, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=(0, 4))
+        ).pack(pady=(0, 2))
         ctk.CTkLabel(
             header,
             text=get_text("login", self.lang),
-            font=ctk.CTkFont(size=13),
+            font=ctk.CTkFont(size=12),
             text_color=ColorTheme.TEXT_SECONDARY
-        ).pack(pady=(0, 16))
+        ).pack(pady=(0, 20))
         
-        # Форма входа
-        form_frame = ctk.CTkFrame(self, fg_color="transparent")
-        form_frame.pack(fill="both", expand=True, padx=40, pady=20)
+        # Форма входа в карточке
+        form_card = ctk.CTkFrame(self, fg_color=ColorTheme.BG_CARD, corner_radius=16, border_width=1, border_color=ColorTheme.BORDER)
+        form_card.pack(fill="both", expand=True, padx=28, pady=(20, 12))
         
-        # Поле логина
+        form_inner = ctk.CTkFrame(form_card, fg_color="transparent")
+        form_inner.pack(fill="both", expand=True, padx=24, pady=20)
+        
+        # Поле логина с иконкой
         ctk.CTkLabel(
-            form_frame, 
-            text=get_text("username", self.lang),
+            form_inner, 
+            text="👤  " + get_text("username", self.lang),
             anchor="w",
-            font=ctk.CTkFont(size=13),
-            text_color=ColorTheme.TEXT_SECONDARY
-        ).pack(fill="x", pady=(10, 4))
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color=ColorTheme.TEXT_PRIMARY
+        ).pack(fill="x", pady=(8, 6))
         self.username_entry = ctk.CTkEntry(
-            form_frame,
+            form_inner,
             placeholder_text=get_text("enter_username", self.lang),
-            height=42,
-            corner_radius=10,
-            border_width=1,
-            border_color=ColorTheme.BORDER,
-            fg_color=ColorTheme.BG_INPUT
-        )
-        self.username_entry.pack(fill="x", pady=4)
-        self.username_entry.bind("<Return>", lambda e: self._login())
-        
-        # Поле пароля
-        ctk.CTkLabel(
-            form_frame, 
-            text=get_text("password", self.lang),
-            anchor="w",
-            font=ctk.CTkFont(size=13),
-            text_color=ColorTheme.TEXT_SECONDARY
-        ).pack(fill="x", pady=(10, 4))
-        self.password_entry = ctk.CTkEntry(
-            form_frame,
-            placeholder_text=get_text("enter_password", self.lang),
-            show="*",
-            height=42,
-            corner_radius=10,
-            border_width=1,
-            border_color=ColorTheme.BORDER,
-            fg_color=ColorTheme.BG_INPUT
-        )
-        self.password_entry.pack(fill="x", pady=4)
-        self.password_entry.bind("<Return>", lambda e: self._login())
-        
-        # Кнопка входа
-        login_btn = ctk.CTkButton(
-            form_frame,
-            text=get_text("login", self.lang),
-            command=self._login,
             height=44,
-            font=ctk.CTkFont(size=14, weight="bold"),
+            corner_radius=12,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            fg_color=ColorTheme.BG_INPUT,
+            font=ctk.CTkFont(size=14)
+        )
+        self.username_entry.pack(fill="x", pady=(0, 4))
+        self.username_entry.bind("<Return>", lambda e: self.password_entry.focus_set())
+        self.username_entry.bind("<FocusIn>", lambda e: self.username_entry.configure(border_color=ColorTheme.PRIMARY))
+        self.username_entry.bind("<FocusOut>", lambda e: self.username_entry.configure(border_color=ColorTheme.BORDER))
+        
+        # Поле пароля с иконкой
+        ctk.CTkLabel(
+            form_inner, 
+            text="🔒  " + get_text("password", self.lang),
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color=ColorTheme.TEXT_PRIMARY
+        ).pack(fill="x", pady=(12, 6))
+        self.password_entry = ctk.CTkEntry(
+            form_inner,
+            placeholder_text=get_text("enter_password", self.lang),
+            show="●",
+            height=44,
+            corner_radius=12,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            fg_color=ColorTheme.BG_INPUT,
+            font=ctk.CTkFont(size=14)
+        )
+        self.password_entry.pack(fill="x", pady=(0, 4))
+        self.password_entry.bind("<Return>", lambda e: self._login())
+        self.password_entry.bind("<FocusIn>", lambda e: self.password_entry.configure(border_color=ColorTheme.PRIMARY))
+        self.password_entry.bind("<FocusOut>", lambda e: self.password_entry.configure(border_color=ColorTheme.BORDER))
+        
+        # Кнопка входа — крупная, с анимацией
+        login_btn = ctk.CTkButton(
+            form_inner,
+            text="→  " + (get_text("login", self.lang) or "Войти"),
+            command=self._login,
+            height=48,
+            font=ctk.CTkFont(size=15, weight="bold"),
             fg_color=ColorTheme.PRIMARY,
             hover_color=ColorTheme.PRIMARY_HOVER,
-            corner_radius=10
+            corner_radius=12
         )
-        login_btn.pack(fill="x", pady=(24, 0))
+        login_btn.pack(fill="x", pady=(20, 0))
         
-        # Ссылка на смену языка
+        # Нижняя панель — язык
+        bottom_frame = ctk.CTkFrame(self, fg_color="transparent")
+        bottom_frame.pack(fill="x", padx=28, pady=(0, 12))
+        
         lang_btn = ctk.CTkButton(
-            self,
-            text=f"🌍 {self.lang.upper()}",
+            bottom_frame,
+            text=f"🌐  {self.lang.upper()}",
             command=self._toggle_language,
-            width=80,
-            height=28,
-            fg_color="transparent",
+            width=90,
+            height=32,
+            fg_color=ColorTheme.BG_CARD,
             border_width=1,
             border_color=ColorTheme.BORDER,
             text_color=ColorTheme.TEXT_SECONDARY,
             hover_color=ColorTheme.BG_HOVER,
-            corner_radius=8
+            corner_radius=10,
+            font=ctk.CTkFont(size=12)
         )
-        lang_btn.pack(side="bottom", pady=10)
+        lang_btn.pack(pady=4)
         
         # Фокус на поле логина
         self.after(100, lambda: self.username_entry.focus_set())

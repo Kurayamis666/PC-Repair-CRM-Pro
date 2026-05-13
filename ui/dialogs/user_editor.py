@@ -97,31 +97,35 @@ class UserEditorDialog(ctk.CTkToplevel):
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
         
-        # 🏷️ Заголовок
+        # Заголовок с акцентом
         header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
         header.pack(fill="x")
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=16, pady=(8, 0))
         
         title_key = "edit_user" if self.user_id else "new_user"
         title_text = get_text(title_key, self.lang) or ("✏️ Редактирование" if self.user_id else "➕ Новый пользователь")
+        icon = "✏️" if self.user_id else "➕"
         
         ctk.CTkLabel(
             header,
-            text=title_text,
+            text=f"{icon} {title_text}",
             font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(pady=15)
+        ).pack(pady=(8, 12))
         
-        # 📋 Форма
+        # Форма
         form = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        form.pack(fill="both", expand=True, padx=20, pady=20)
+        form.pack(fill="both", expand=True, padx=20, pady=16)
         
-        # 👤 Логин
+        # Логин
         ctk.CTkLabel(
             form, 
-            text=get_text("username", self.lang) + " *",  # ✅ Переведено + обязательное поле
+            text="👤  " + get_text("username", self.lang) + " *",
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         self._username_entry = ctk.CTkEntry(
             form, 
@@ -129,12 +133,18 @@ class UserEditorDialog(ctk.CTkToplevel):
             fg_color=ColorTheme.BG_INPUT, 
             text_color=ColorTheme.TEXT_PRIMARY,
             height=40,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._username_entry.pack(fill="x", pady=5)
+        self._username_entry.pack(fill="x", pady=4)
         self._username_entry.bind("<KeyRelease>", lambda e: self._clear_error())
+        self._username_entry.bind("<FocusIn>", lambda e: self._username_entry.configure(border_color=ColorTheme.PRIMARY))
+        self._username_entry.bind("<FocusOut>", lambda e: self._username_entry.configure(border_color=ColorTheme.BORDER))
         
-        # 🔐 Пароль
-        password_label = get_text("password", self.lang)
+        # Пароль
+        password_label = "🔐  " + get_text("password", self.lang)
         if self.user_id:
             password_label += f" ({get_text('password_optional', self.lang) or 'оставьте пустым чтобы не менять'})"
         
@@ -143,7 +153,8 @@ class UserEditorDialog(ctk.CTkToplevel):
             text=password_label,
             text_color=ColorTheme.TEXT_PRIMARY,
             anchor="w",
-        ).pack(anchor="w", pady=(10, 5))
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         self._password_entry = ctk.CTkEntry(
             form,
@@ -152,17 +163,24 @@ class UserEditorDialog(ctk.CTkToplevel):
             text_color=ColorTheme.TEXT_PRIMARY,
             show="*",
             height=40,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._password_entry.pack(fill="x", pady=5)
+        self._password_entry.pack(fill="x", pady=4)
         self._password_entry.bind("<KeyRelease>", lambda e: self._clear_error())
+        self._password_entry.bind("<FocusIn>", lambda e: self._password_entry.configure(border_color=ColorTheme.PRIMARY))
+        self._password_entry.bind("<FocusOut>", lambda e: self._password_entry.configure(border_color=ColorTheme.BORDER))
         
-        # 🔐 Подтверждение пароля
+        # Подтверждение пароля
         ctk.CTkLabel(
             form, 
-            text=get_text("confirm_password", self.lang) + ":", 
+            text="🔒  " + get_text("confirm_password", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         self._confirm_entry = ctk.CTkEntry(
             form,
@@ -171,17 +189,24 @@ class UserEditorDialog(ctk.CTkToplevel):
             text_color=ColorTheme.TEXT_PRIMARY,
             show="*",
             height=40,
+            corner_radius=10,
+            border_width=2,
+            border_color=ColorTheme.BORDER,
+            font=ctk.CTkFont(size=13),
         )
-        self._confirm_entry.pack(fill="x", pady=5)
+        self._confirm_entry.pack(fill="x", pady=4)
         self._confirm_entry.bind("<KeyRelease>", lambda e: self._clear_error())
+        self._confirm_entry.bind("<FocusIn>", lambda e: self._confirm_entry.configure(border_color=ColorTheme.PRIMARY))
+        self._confirm_entry.bind("<FocusOut>", lambda e: self._confirm_entry.configure(border_color=ColorTheme.BORDER))
         
-        # 🎭 Роль (с переводом)
+        # Роль
         ctk.CTkLabel(
             form, 
-            text=get_text("role", self.lang) + ":", 
+            text="🎭  " + get_text("role", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         # ✅ Создаём маппинг: отображаемое значение → значение для БД
         role_values = [role[self.lang] if self.lang in role else role["ru"] for role in self.ROLES]
@@ -196,16 +221,19 @@ class UserEditorDialog(ctk.CTkToplevel):
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
             height=40,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
         )
-        self._role_menu.pack(fill="x", pady=5)
+        self._role_menu.pack(fill="x", pady=4)
         
-        # 🏢 Филиал (с безопасным маппингом)
+        # Филиал
         ctk.CTkLabel(
             form, 
-            text=get_text("branch", self.lang) + ":", 
+            text="🏢  " + get_text("branch", self.lang), 
             text_color=ColorTheme.TEXT_PRIMARY,
-            anchor="w"
-        ).pack(anchor="w", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(anchor="w", pady=(8, 4))
         
         self._branch_var = ctk.StringVar(value="")
         self._branch_menu = ctk.CTkOptionMenu(
@@ -216,39 +244,46 @@ class UserEditorDialog(ctk.CTkToplevel):
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
             height=40,
-            state="disabled" if not self.user_id else "normal",  # Отключён для новых пользователей пока не загрузятся филиалы
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
+            state="disabled" if not self.user_id else "normal",
         )
-        self._branch_menu.pack(fill="x", pady=5)
+        self._branch_menu.pack(fill="x", pady=4)
         
         # Загружаем филиалы асинхронно
         self.after(10, self._load_branches)
         
-        # 🔘 Кнопки
+        # Разделитель
+        ctk.CTkFrame(self, fg_color=ColorTheme.BORDER, height=1).pack(fill="x", padx=16)
+        
+        # Кнопки
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=20)
+        btn_frame.pack(fill="x", padx=20, pady=16)
         
         ctk.CTkButton(
             btn_frame,
             text=get_text("cancel", self.lang),
             command=self.destroy,
-            width=150,
-            height=35,
-            fg_color=ColorTheme.TEXT_SECONDARY,
-            hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
+            height=38,
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorUtils.darken(ColorTheme.BG_INPUT, 10),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(side="left", padx=10)
+            corner_radius=10,
+            font=ctk.CTkFont(size=13),
+        ).pack(side="left", padx=6, fill="x", expand=True)
         
         self._save_btn = ctk.CTkButton(
             btn_frame,
             text="💾 " + get_text("save", self.lang),
             command=self._save,
-            width=150,
-            height=35,
+            height=38,
             fg_color=ColorTheme.SUCCESS,
-            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 15),
             text_color=ColorTheme.TEXT_PRIMARY,
+            corner_radius=10,
+            font=ctk.CTkFont(size=13, weight="bold"),
         )
-        self._save_btn.pack(side="right", padx=10)
+        self._save_btn.pack(side="left", padx=6, fill="x", expand=True)
         
         # ⏳ Индикатор загрузки (скрыт по умолчанию)
         self._loading_label = ctk.CTkLabel(

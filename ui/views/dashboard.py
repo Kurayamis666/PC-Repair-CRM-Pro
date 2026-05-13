@@ -66,39 +66,45 @@ class DashboardView(ctk.CTkFrame):
     def _build_ui(self) -> None:
         """Построение интерфейса дашборда с полным переводом"""
         
-        # 1. Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        # 1. Заголовок с акцентом
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=14)
         header.pack(fill="x", padx=10, pady=(5, 0))
+        accent_top = ctk.CTkFrame(header, fg_color=ColorTheme.SECONDARY, height=3, corner_radius=2)
+        accent_top.pack(fill="x", padx=20, pady=(8, 0))
         ctk.CTkLabel(
-            header, text=get_text("dashboard", self.lang),
+            header, text="📊 " + get_text("dashboard", self.lang),
             font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=12)
+        ).pack(pady=(8, 10))
 
-        # 2. Навигационное меню
-        nav_frame = ctk.CTkFrame(self, fg_color="transparent")
-        nav_frame.pack(fill="x", padx=20, pady=(10, 0))
+        # 2. Навигационное меню в карточке
+        nav_card = ctk.CTkFrame(self, fg_color=ColorTheme.BG_CARD, corner_radius=12, border_width=1, border_color=ColorTheme.BORDER)
+        nav_card.pack(fill="x", padx=10, pady=(8, 0))
+        
+        nav_inner = ctk.CTkFrame(nav_card, fg_color="transparent")
+        nav_inner.pack(fill="x", padx=8, pady=8)
         
         nav_items = [
             ("📋 " + get_text("main", self.lang), "dashboard", ColorTheme.PRIMARY),
-            ("👥 " + get_text("reference", self.lang), "reference", ColorTheme.BG_INPUT),
-            ("📄 " + get_text("documents", self.lang), "documents", ColorTheme.BG_INPUT),
-            ("📊 " + get_text("reports", self.lang), "reports", ColorTheme.BG_INPUT),
-            ("⚙️ " + get_text("settings", self.lang), "settings", ColorTheme.BG_INPUT)
+            ("👥 " + get_text("reference", self.lang), "reference", ColorTheme.INFO),
+            ("📄 " + get_text("documents", self.lang), "documents", ColorTheme.SUCCESS),
+            ("📊 " + get_text("reports", self.lang), "reports", ColorTheme.WARNING),
+            ("⚙️ " + get_text("settings", self.lang), "settings", ColorTheme.SECONDARY)
         ]
         
         for text, view, color in nav_items:
             is_active = view == "dashboard"
             ctk.CTkButton(
-                nav_frame, text=text,
+                nav_inner, text=text,
                 command=lambda v=view: self.on_navigate(v) if self.on_navigate else None,
-                width=140, height=36, corner_radius=10,
-                fg_color=color, text_color=ColorTheme.TEXT_PRIMARY,
-                hover_color=ColorUtils.darken(color, 10) if color != ColorTheme.PRIMARY else ColorTheme.PRIMARY_HOVER,
-                border_width=1 if is_active else 0,
-                border_color=ColorTheme.PRIMARY if is_active else ColorTheme.BG_INPUT,
+                height=36, corner_radius=10,
+                fg_color=color if is_active else ColorTheme.BG_INPUT,
+                text_color=ColorTheme.TEXT_PRIMARY,
+                hover_color=ColorUtils.darken(color, 15) if is_active else ColorUtils.darken(ColorTheme.BG_INPUT, 10),
+                border_width=2 if is_active else 0,
+                border_color=ColorUtils.lighten(color, 20) if is_active else ColorTheme.BG_INPUT,
                 font=ctk.CTkFont(size=13, weight="bold" if is_active else "normal")
-            ).pack(side="left", padx=4)
+            ).pack(side="left", padx=4, fill="x", expand=True)
 
         # 3. Панель действий
         top_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -130,12 +136,16 @@ class DashboardView(ctk.CTkFrame):
             card = ctk.CTkFrame(stats_frame, fg_color=ColorTheme.BG_CARD, corner_radius=14, border_width=1, border_color=ColorTheme.BORDER)
             card.pack(side="left", fill="x", expand=True, padx=5, pady=5)
             
-            accent = ctk.CTkFrame(card, fg_color=color, height=3, corner_radius=2)
-            accent.pack(fill="x", padx=12, pady=(8, 0))
+            accent = ctk.CTkFrame(card, fg_color=color, height=4, corner_radius=2)
+            accent.pack(fill="x", padx=12, pady=(10, 0))
             
-            ctk.CTkLabel(card, text=title, font=ctk.CTkFont(size=12), text_color=ColorTheme.TEXT_SECONDARY).pack(pady=(6, 0))
-            lbl = ctk.CTkLabel(card, text="0", font=ctk.CTkFont(size=20, weight="bold"), text_color=color)
-            lbl.pack(pady=(4, 10))
+            ctk.CTkLabel(card, text=title, font=ctk.CTkFont(size=12, weight="bold"), text_color=ColorTheme.TEXT_SECONDARY).pack(pady=(8, 0))
+            lbl = ctk.CTkLabel(card, text="0", font=ctk.CTkFont(size=24, weight="bold"), text_color=color)
+            lbl.pack(pady=(4, 4))
+            
+            accent_bottom = ctk.CTkFrame(card, fg_color=color, height=2, corner_radius=1)
+            accent_bottom.pack(fill="x", padx=20, pady=(0, 10))
+            
             self._stat_labels[key] = lbl
 
         # 5. Фильтры
@@ -153,19 +163,24 @@ class DashboardView(ctk.CTkFrame):
         
         self.filter_vars: Dict[str, ctk.CTkButton] = {}
         for i, (text, status, color) in enumerate(filters):
+            is_active = status == self.current_filter
             btn = ctk.CTkButton(
                 filter_frame, text=text, command=lambda s=status: self._filter_requests(s),
-                width=120, height=30, corner_radius=8,
-                fg_color=color if status != "all" else ColorTheme.PRIMARY,
-                hover_color=ColorUtils.darken(color, 10) if status != "all" else ColorUtils.darken(ColorTheme.BG_INPUT, 10),
-                text_color=ColorTheme.TEXT_PRIMARY
+                height=32, corner_radius=10,
+                fg_color=color if is_active or status != "all" else ColorTheme.PRIMARY,
+                hover_color=ColorUtils.darken(color, 15) if status != "all" else ColorUtils.darken(ColorTheme.PRIMARY, 15),
+                text_color=ColorTheme.TEXT_PRIMARY,
+                font=ctk.CTkFont(size=12, weight="bold" if is_active else "normal")
             )
-            btn.pack(side="left", padx=5)
+            btn.pack(side="left", padx=4)
             self.filter_vars[status] = btn
 
         # 6. Таблица заявок с DataTable для сортировки
-        table_container = ctk.CTkFrame(self, fg_color=ColorTheme.BG_INPUT)
-        table_container.pack(fill="both", expand=True, padx=20, pady=10)
+        table_card = ctk.CTkFrame(self, fg_color=ColorTheme.BG_CARD, corner_radius=12, border_width=1, border_color=ColorTheme.BORDER)
+        table_card.pack(fill="both", expand=True, padx=10, pady=(5, 10))
+        
+        table_container = ctk.CTkFrame(table_card, fg_color=ColorTheme.BG_INPUT, corner_radius=8)
+        table_container.pack(fill="both", expand=True, padx=10, pady=10)
 
         cols = [
             get_text("col_id", self.lang),
@@ -218,8 +233,18 @@ class DashboardView(ctk.CTkFrame):
         bottom_frame = ctk.CTkFrame(self, fg_color="transparent")
         bottom_frame.pack(fill="x", padx=20, pady=10)
         
-        ctk.CTkButton(bottom_frame, text="🗑️ " + get_text("delete", self.lang), command=self._delete_request, width=120, height=30, fg_color=ColorTheme.ERROR, hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)).pack(side="left", padx=10)
-        ctk.CTkButton(bottom_frame, text="🔄 " + get_text("update", self.lang), command=self._load_requests, width=120, height=30, fg_color=ColorTheme.INFO, hover_color=ColorUtils.darken(ColorTheme.INFO, 10)).pack(side="right", padx=10)
+        ctk.CTkButton(
+            bottom_frame, text="🗑️ " + get_text("delete", self.lang), command=self._delete_request,
+            width=130, height=34, fg_color=ColorTheme.ERROR,
+            hover_color=ColorUtils.darken(ColorTheme.ERROR, 15),
+            corner_radius=10, font=ctk.CTkFont(size=12, weight="bold")
+        ).pack(side="left", padx=10)
+        ctk.CTkButton(
+            bottom_frame, text="🔄 " + get_text("update", self.lang), command=self._load_requests,
+            width=130, height=34, fg_color=ColorTheme.INFO,
+            hover_color=ColorUtils.darken(ColorTheme.INFO, 15),
+            corner_radius=10, font=ctk.CTkFont(size=12, weight="bold")
+        ).pack(side="right", padx=10)
 
         # ⌨️ Горячие клавиши
         self._bind_hotkeys()

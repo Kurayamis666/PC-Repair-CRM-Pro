@@ -35,8 +35,10 @@ class MenuBar(ctk.CTkFrame):
         super().__init__(
             parent, 
             fg_color=ColorTheme.PRIMARY, 
-            corner_radius=12, 
-            height=55  # Можно сделать адаптивным при необходимости
+            corner_radius=14, 
+            height=60,
+            border_width=1,
+            border_color=ColorTheme.PRIMARY_HOVER
         )
         
         # ✅ Валидация входных данных
@@ -60,36 +62,44 @@ class MenuBar(ctk.CTkFrame):
     def _build_ui(self) -> None:
         """Построение интерфейса с безопасным доступом к данным"""
         
-        # 👤 Информация о пользователе (слева)
-        user_frame = ctk.CTkFrame(self, fg_color="transparent")
-        user_frame.pack(side="left", padx=20)
+        # 🎨 Лого приложения (слева)
+        logo_frame = ctk.CTkFrame(self, fg_color="transparent")
+        logo_frame.pack(side="left", padx=(16, 8))
         
-        # ✅ Безопасное получение имени пользователя
+        ctk.CTkLabel(
+            logo_frame,
+            text="🛠️ PC Repair CRM",
+            font=ctk.CTkFont(size=15, weight="bold"),
+            text_color=ColorTheme.TEXT_PRIMARY,
+        ).pack(side="left")
+        
+        # 👤 Информация о пользователе в бейдже
+        user_badge = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY_HOVER, corner_radius=10)
+        user_badge.pack(side="left", padx=8)
+        
         username = self.user.get("username") or self.user.get("full_name") or "Пользователь"
         self._username_label = ctk.CTkLabel(
-            user_frame,
+            user_badge,
             text=f"👤 {username}",
-            font=ctk.CTkFont(size=14, weight="bold"),
+            font=ctk.CTkFont(size=13, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
         )
-        self._username_label.pack(side="left")
+        self._username_label.pack(side="left", padx=(10, 4), pady=6)
         
-        # ✅ Безопасное получение роли (опционально)
         role = self.user.get("role")
         if role:
-            # Перевод роли если есть ключ
             role_text = get_text(f"role_{role}", self.lang) or role
             self._role_label = ctk.CTkLabel(
-                user_frame,
-                text=f" • {role_text}",
-                font=ctk.CTkFont(size=12),
+                user_badge,
+                text=f"• {role_text}",
+                font=ctk.CTkFont(size=11),
                 text_color=ColorTheme.TEXT_SECONDARY,
             )
-            self._role_label.pack(side="left")
+            self._role_label.pack(side="left", padx=(0, 10), pady=6)
         
         # 🔘 Правая часть: язык + выход
         right_frame = ctk.CTkFrame(self, fg_color="transparent")
-        right_frame.pack(side="right", padx=15)
+        right_frame.pack(side="right", padx=12)
         
         # 🌐 Переключатель языка
         self.lang_var = ctk.StringVar(value=self.lang)
@@ -98,27 +108,28 @@ class MenuBar(ctk.CTkFrame):
             values=["ru", "en"],
             variable=self.lang_var,
             command=self._on_language_change,
-            width=80,
+            width=72,
             height=32,
-            fg_color=ColorTheme.PRIMARY_HOVER,  # ✅ Из темы вместо SECONDARY
+            fg_color=ColorTheme.PRIMARY_HOVER,
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
             corner_radius=8,
+            font=ctk.CTkFont(size=12),
         )
-        self._lang_menu.pack(side="right", padx=5)
+        self._lang_menu.pack(side="right", padx=4)
         
         # 🚪 Кнопка выхода
         ctk.CTkButton(
             right_frame,
-            text=get_text("logout", self.lang),
+            text="🚪 " + (get_text("logout", self.lang) or "Выход"),
             command=self._on_logout,
             width=110,
-            height=32,
+            height=34,
             fg_color=ColorTheme.ERROR,
-            hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),  # ✅ Из темы
+            hover_color=ColorUtils.darken(ColorTheme.ERROR, 15),
             corner_radius=10,
             font=ctk.CTkFont(size=12, weight="bold"),
-        ).pack(side="right", padx=10)
+        ).pack(side="right", padx=8)
     
     def _bind_hotkeys(self) -> None:
         """Привязка горячих клавиш"""
