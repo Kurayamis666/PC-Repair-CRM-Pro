@@ -18,6 +18,7 @@ from ui.theme import ColorTheme, ColorUtils
 from translations import get_text
 from ui.widgets.toast import ToastNotification
 from ui.widgets.tables import DataTable
+from utils.helpers import format_currency
 
 
 class DocumentsView(ctk.CTkFrame):
@@ -65,14 +66,189 @@ class DocumentsView(ctk.CTkFrame):
         self._build_requests_tab()
         self._build_equipment_tab()
     
+    # Конфигурация статусов заявок
+    STATUS_CONFIG = {
+        "new": {"icon": "🆕", "label_ru": "Новая", "label_en": "New"},
+        "diagnostics": {"icon": "🔍", "label_ru": "Диагностика", "label_en": "Diagnostics"},
+        "in_progress": {"icon": "🔧", "label_ru": "В работе", "label_en": "In Progress"},
+        "ready": {"icon": "✅", "label_ru": "Готово", "label_en": "Ready"},
+        "closed": {"icon": "🏁", "label_ru": "Закрыто", "label_en": "Closed"},
+        "cancelled": {"icon": "❌", "label_ru": "Отменено", "label_en": "Cancelled"},
+    }
+
+    def _get_status_display(self, status: str) -> str:
+        """Получить отображаемый статус с иконкой"""
+        config = self.STATUS_CONFIG.get(status, {})
+        icon = config.get("icon", "❓")
+        label = config.get(f"label_{self.lang}", status)
+        return f"{icon} {label}"
+
     def _build_requests_tab(self):
-        """Вкладка Заявок (заглушка)"""
+        """Вкладка Заявок — полный CRUD"""
+        # Заголовок вкладки
         ctk.CTkLabel(
             self.tab_requests, 
-            text="📋 " + get_text("under_construction", self.lang, default="Раздел в разработке"),
-            font=ctk.CTkFont(size=16), 
-            text_color=ColorTheme.TEXT_SECONDARY
-        ).pack(expand=True, pady=100)
+            text="📋 " + get_text("requests", self.lang),
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=ColorTheme.TEXT_PRIMARY
+        ).pack(pady=10)
+        
+        # Кнопки управления
+        btn_frame = ctk.CTkFrame(self.tab_requests, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=10)
+        
+        ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
+                     command=self._add_request, width=130, height=30,
+                     fg_color=ColorTheme.SUCCESS,
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+        ).pack(side="left", padx=5)
+        ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
+                     command=self._edit_request, width=130, height=30,
+                     fg_color=ColorTheme.INFO,
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
+        ).pack(side="left", padx=5)
+        ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
+                     command=self._delete_request, width=130, height=30,
+                     fg_color=ColorTheme.ERROR,
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
+        ).pack(side="left", padx=5)
+        ctk.CTkButton(btn_frame, text="🔄 " + get_text("update", self.lang), 
+                     command=self._load_requests, width=130, height=30,
+                     fg_color=ColorTheme.TEXT_SECONDARY,
+                     hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10)
+        ).pack(side="right", padx=5)
+        
+        # Таблица заявок
+        table_frame = ctk.CTkFrame(self.tab_requests, fg_color=ColorTheme.BG_INPUT)
+        table_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        columns = [
+            get_text("col_id", self.lang),
+            get_text("col_date", self.lang),
+            get_text("col_employee", self.lang),
+            get_text("col_equipment", self.lang),
+            get_text("col_status", self.lang),
+            get_text("col_sum", self.lang),
+            get_text("col_master", self.lang)
+        ]
+        col_widths = {
+            get_text("col_id", self.lang): 50,
+            get_text("col_date", self.lang): 100,
+            get_text("col_employee", self.lang): 150,
+            get_text("col_equipment", self.lang): 150,
+            get_text("col_status", self.lang): 120,
+            get_text("col_sum", self.lang): 100,
+            get_text("col_master", self.lang): 120
+        }
+        col_align = {
+            get_text("col_id", self.lang): "center",
+            get_text("col_date", self.lang): "center",
+            get_text("col_employee", self.lang): "left",
+            get_text("col_equipment", self.lang): "left",
+            get_text("col_status", self.lang): "center",
+            get_text("col_sum", self.lang): "right",
+            get_text("col_master", self.lang): "left"
+        }
+        
+        self.req_tree = DataTable(
+            table_frame,
+            columns=columns,
+            column_widths=col_widths,
+            column_align=col_align,
+            sortable=True,
+            copyable=True,
+            on_row_double_click=lambda item: self._edit_request()
+        )
+        self.req_tree.pack(fill="both", expand=True)
+        
+        # Загружаем данные
+        self._load_requests()
+
+    def _load_requests(self) -> None:
+        """Загрузка заявок из БД"""
+        self.req_tree.delete(*self.req_tree.get_children())
+        
+        try:
+            with self.db.get_cursor() as cur:
+                cur.execute("""
+                    SELECT r.id, r.created_at, emp.full_name, e.model, r.status, r.total_cost, u.username
+                    FROM requests r
+                    LEFT JOIN employees emp ON r.client_id = emp.id
+                    LEFT JOIN equipment e ON r.equipment_id = e.id
+                    LEFT JOIN users u ON r.user_id = u.id
+                    ORDER BY r.created_at DESC
+                """)
+                rows = cur.fetchall()
+            
+            if not rows:
+                self.req_tree.show_empty_state(
+                    message=get_text("no_requests", self.lang) or "Заявки не найдены",
+                    icon="📋"
+                )
+                return
+            else:
+                self.req_tree.hide_empty_state()
+            
+            for idx, row in enumerate(rows):
+                r_id, date, employee, equip, status, cost, master = row
+                tag = "odd" if idx % 2 else "even"
+                values = (
+                    r_id,
+                    (date or "")[:10],
+                    employee or "—",
+                    equip or "—",
+                    self._get_status_display(status),
+                    format_currency(cost, "RUB", self.lang),
+                    master or "—"
+                )
+                self.req_tree.insert("", "end", values=values, tags=(tag,))
+                
+        except Exception as e:
+            app_logger.error(f"Error loading requests: {e}")
+            ToastNotification(self, f"{get_text('error_loading', self.lang)}: {e}", "error")
+
+    def _add_request(self) -> None:
+        """Создание новой заявки"""
+        from ui.dialogs.request_editor import RequestEditorDialog
+        RequestEditorDialog(
+            self, lang=self.lang,
+            on_save=self._load_requests
+        )
+
+    def _edit_request(self) -> None:
+        """Редактирование заявки"""
+        selection = self.req_tree.selection()
+        if not selection:
+            ToastNotification(self, "⚠️ " + get_text("select_row", self.lang), "warning")
+            return
+        
+        request_id = self.req_tree.item(selection[0])['values'][0]
+        from ui.dialogs.request_editor import RequestEditorDialog
+        RequestEditorDialog(
+            self, request_id=request_id, lang=self.lang,
+            on_save=self._load_requests
+        )
+
+    def _delete_request(self) -> None:
+        """Удаление заявки"""
+        selection = self.req_tree.selection()
+        if not selection:
+            ToastNotification(self, "⚠️ " + get_text("select_row", self.lang), "warning")
+            return
+        
+        request_id = self.req_tree.item(selection[0])['values'][0]
+        
+        if messagebox.askyesno(get_text("confirm_delete", self.lang),
+                              get_text("delete_request_confirm", self.lang)):
+            try:
+                with self.db.get_cursor() as cur:
+                    cur.execute("DELETE FROM requests WHERE id = ?", (request_id,))
+                self._load_requests()
+                ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
+            except Exception as e:
+                ToastNotification(self, f"❌ {e}", "error")
     
     def _build_equipment_tab(self):
         """Вкладка Оборудования - ПОЛНОСТЬЮ РАБОЧАЯ"""
