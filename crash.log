@@ -1,0 +1,66 @@
+CRASH at 2026-05-11 18:18:17.259562
+Traceback (most recent call last):
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\main.py", line 114, in main
+    app = App()
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\app.py", line 85, in __init__
+    self._show_login()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\app.py", line 162, in _show_login
+    self._login_window = LoginWindow(
+                         ~~~~~~~~~~~^
+        parent=self,  # ✅ Родитель — главное окно App
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        on_success=on_login_success,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        on_close=on_login_close
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\login\login_window.py", line 62, in __init__
+    self._build_ui()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\login\login_window.py", line 138, in _build_ui
+    border_color=ColorTheme.BORDER,
+                 ^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ColorTheme' has no attribute 'BORDER'
+
+═══════════════════════════════════════
+🚨 CRASH REPORT — PC Repair CRM Pro
+═══════════════════════════════════════
+Time: 2026-05-11 18:18:17
+Python: 3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)]
+Platform: win32
+Frozen: False
+Path: C:\Users\Kurayamis\OneDrive\Desktop\comp2
+
+Exception Type: AttributeError
+Exception Value: type object 'ColorTheme' has no attribute 'BORDER'
+
+Traceback:
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\main.py", line 141, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\main.py", line 114, in main
+    app = App()
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\app.py", line 85, in __init__
+    self._show_login()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\app.py", line 162, in _show_login
+    self._login_window = LoginWindow(
+                         ~~~~~~~~~~~^
+        parent=self,  # ✅ Родитель — главное окно App
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        on_success=on_login_success,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        on_close=on_login_close
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\login\login_window.py", line 62, in __init__
+    self._build_ui()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\Kurayamis\OneDrive\Desktop\comp2\ui\login\login_window.py", line 138, in _build_ui
+    border_color=ColorTheme.BORDER,
+                 ^^^^^^^^^^^^^^^^^
+
+═══════════════════════════════════════
