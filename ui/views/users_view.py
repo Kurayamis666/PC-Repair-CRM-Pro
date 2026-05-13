@@ -43,9 +43,10 @@ class UsersView(ctk.CTkFrame):
         "viewer": {"icon": "👁️", "label_ru": "Наблюдатель", "label_en": "Viewer", "color": ColorTheme.TEXT_SECONDARY},
     }
     
-    def __init__(self, parent: ctk.CTkBaseClass, lang: str = "ru", **kwargs):
+    def __init__(self, parent: ctk.CTkBaseClass, lang: str = "ru", on_navigate: Optional[Callable] = None, **kwargs):
         super().__init__(parent, fg_color="transparent", **kwargs)
         self.lang = lang
+        self.on_navigate = on_navigate
         self.db = DatabaseConnection()
         self._sort_reverse: Dict[str, bool] = {}
         self._build_ui()
