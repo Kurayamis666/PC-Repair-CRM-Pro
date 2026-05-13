@@ -458,12 +458,10 @@ class RequestEditorDialog(ctk.CTkToplevel):
         
         try:
             with self.db.get_cursor() as cur:
-                # ✅ employees вместо clients
                 cur.execute("""
-                    SELECT r.*, emp.full_name as employee_name, e.id as equipment_id, e.model as equipment_model
+                    SELECT r.client_id, r.equipment_id, r.status,
+                           r.problem_desc, r.labor_cost, r.parts_cost, r.planned_date
                     FROM requests r
-                    LEFT JOIN employees emp ON r.client_id = emp.id
-                    LEFT JOIN equipment e ON r.equipment_id = e.id
                     WHERE r.id = ?
                 """, (self.request_id,))
                 row = cur.fetchone()
@@ -471,44 +469,51 @@ class RequestEditorDialog(ctk.CTkToplevel):
             if not row:
                 return
             
-            # ✅ Сотрудник
-            if row[2]:  # employee_name (предполагаем порядок колонок)
+            client_id, equipment_id, status, problem_desc, labor_cost, parts_cost, planned_date = row
+            
+            # Сотрудник
+            if client_id:
                 for display, eid in self._employees_map.items():
-                    if eid == row[1]:  # client_id = employee_id
+                    if eid == client_id:
                         if self._client_combo:
                             self._client_combo.set(display)
+                        self._on_employee_change(display)
                         break
             
-            # ✅ Оборудование
-            if row[3] and hasattr(self, '_equipment_map'):  # equipment_id
+            # Оборудование
+            if equipment_id and self._equipment_map:
                 for display, eq_id in self._equipment_map.items():
-                    if eq_id == row[3]:
+                    if eq_id == equipment_id:
                         if self._equipment_combo:
                             self._equipment_combo.set(display)
                         break
             
-            # ✅ Остальные поля
-            if self._problem_desc and row[4]:  # problem_desc
+            # Описание проблемы
+            if self._problem_desc and problem_desc:
                 self._problem_desc.delete("1.0", "end")
-                self._problem_desc.insert("1.0", row[4])
+                self._problem_desc.insert("1.0", problem_desc)
             
-            if self._status_menu and row[5]:  # status
-                display_status = get_text(f"status_{row[5]}", self.lang) or row[5]
+            # Статус
+            if self._status_menu and status:
+                display_status = get_text(f"status_{status}", self.lang) or status
                 self._status_var.set(display_status)
             
+            # Стоимость работы
             if self._labor_entry:
                 self._labor_entry.delete(0, "end")
-                self._labor_entry.insert(0, str(row[6] or 0))  # labor_cost
+                self._labor_entry.insert(0, str(labor_cost or 0))
             
+            # Стоимость запчастей
             if self._parts_entry:
                 self._parts_entry.delete(0, "end")
-                self._parts_entry.insert(0, str(row[7] or 0))  # parts_cost
+                self._parts_entry.insert(0, str(parts_cost or 0))
             
             self._recalculate_total()
             
-            if self._date_entry and row[9]:  # planned_date
+            # Плановая дата
+            if self._date_entry and planned_date:
                 self._date_entry.delete(0, "end")
-                self._date_entry.insert(0, row[9])
+                self._date_entry.insert(0, planned_date)
                 
         except Exception as e:
             app_logger.exception(f"❌ Error loading request: {e}")
