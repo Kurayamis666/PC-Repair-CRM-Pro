@@ -269,6 +269,10 @@ _COMMON_TRANSLATIONS: Dict[Language, TranslationsDict] = {
         "selected_summary": "Выбрано: {} шт. на сумму {}",
         "total": "Итого",
         "unit_default": "шт.",
+        # === Аналитика ===
+        "completed_requests": "Завершено", "active_requests": "Активные",
+        "avg_request_cost": "Средний чек", "completion_rate": "Выполнение",
+        "top_masters": "Топ мастеров", "open": "Открыть",
     },
     "en": {
         "add": "Add", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel",
@@ -503,6 +507,10 @@ _COMMON_TRANSLATIONS: Dict[Language, TranslationsDict] = {
         "selected_summary": "Selected: {} pcs. total {}",
         "total": "Total",
         "unit_default": "pcs",
+        # === Analytics ===
+        "completed_requests": "Completed", "active_requests": "Active",
+        "avg_request_cost": "Avg. cost", "completion_rate": "Completion",
+        "top_masters": "Top masters", "open": "Open",
     }
 }
 

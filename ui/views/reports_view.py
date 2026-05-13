@@ -59,24 +59,26 @@ class ReportsView(ctk.CTkFrame):
         """Построение интерфейса с полным переводом"""
         
         # 🏷️ Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        header.pack(fill="x", padx=10, pady=(5, 0))
         ctk.CTkLabel(
             header, 
             text="📊 " + get_text("reports", self.lang),
-            font=ctk.CTkFont(size=24, weight="bold"),
+            font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=20)
+        ).pack(pady=12)
         
         # 🔙 Кнопка назад
         ctk.CTkButton(
             self, 
             text=get_text("back", self.lang),
             command=lambda: self.on_navigate("dashboard") if self.on_navigate else None,
-            width=150, height=35,
-            fg_color=ColorTheme.TEXT_SECONDARY,
-            corner_radius=10
-        ).pack(padx=20, pady=20, anchor="w")
+            width=120, height=32,
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorTheme.BG_HOVER,
+            corner_radius=10,
+            font=ctk.CTkFont(size=12)
+        ).pack(padx=20, pady=(12, 5), anchor="w")
         
         # Основной контент
         self.content_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -104,17 +106,35 @@ class ReportsView(ctk.CTkFrame):
         
         for i, (icon, name, command, color) in enumerate(reports):
             row, col = divmod(i, 2)
-            btn = ctk.CTkButton(
-                grid_frame,
-                text=f"{icon} {name}",
-                height=100,
-                command=command,
+            
+            card = ctk.CTkFrame(grid_frame, fg_color=ColorTheme.BG_CARD, corner_radius=16, border_width=1, border_color=ColorTheme.BORDER)
+            card.grid(row=row, column=col, padx=12, pady=12, sticky="nsew")
+            
+            accent = ctk.CTkFrame(card, fg_color=color, height=4, corner_radius=2)
+            accent.pack(fill="x", padx=20, pady=(16, 0))
+            
+            ctk.CTkLabel(
+                card, text=icon,
+                font=ctk.CTkFont(size=32)
+            ).pack(pady=(12, 4))
+            
+            ctk.CTkLabel(
+                card, text=name,
                 font=ctk.CTkFont(size=14, weight="bold"),
-                corner_radius=12,
-                fg_color=ColorTheme.BG_INPUT,
-                hover_color=ColorUtils.darken(color, 10) if color else ColorTheme.PRIMARY_HOVER
+                text_color=ColorTheme.TEXT_PRIMARY
+            ).pack(pady=(0, 4))
+            
+            btn = ctk.CTkButton(
+                card,
+                text=get_text("open", self.lang) if get_text("open", self.lang) != "open" else "Открыть",
+                height=32, width=120,
+                command=command,
+                font=ctk.CTkFont(size=12),
+                corner_radius=8,
+                fg_color=color,
+                hover_color=ColorUtils.darken(color, 15)
             )
-            btn.grid(row=row, column=col, padx=15, pady=15, sticky="nsew")
+            btn.pack(pady=(4, 16))
         
         grid_frame.grid_columnconfigure((0, 1), weight=1)
         grid_frame.grid_rowconfigure((0, 1, 2), weight=1)
@@ -535,6 +555,15 @@ class ReportsView(ctk.CTkFrame):
         for widget in self.content_frame.winfo_children():
             widget.destroy()
         
+        btn_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=(10, 0))
+        ctk.CTkButton(
+            btn_frame,
+            text=get_text("back", self.lang),
+            command=self._show_reports_menu,
+            width=100, height=30
+        ).pack(side="left", padx=10)
+        
         # Вкладки
         notebook = ctk.CTkTabview(self.content_frame, fg_color="transparent")
         notebook.pack(fill="both", expand=True, padx=20, pady=10)
@@ -795,9 +824,9 @@ class ReportsView(ctk.CTkFrame):
                         r.total_cost,
                         u.full_name
                     FROM requests r
-                    LEFT JOIN employees c ON r.client_id = c.id  # ✅ employees вместо clients
+                    LEFT JOIN employees c ON r.client_id = c.id
                     LEFT JOIN equipment e ON r.equipment_id = e.id
-                    LEFT JOIN employees u ON r.user_id = u.id
+                    LEFT JOIN users u ON r.user_id = u.id
                     ORDER BY r.created_at DESC
                     LIMIT 200
                 """)
@@ -975,7 +1004,8 @@ class ReportsView(ctk.CTkFrame):
             
             # Заголовок
             header_font = Font(bold=True, color="FFFFFF")
-            header_fill = PatternFill(start_color=ColorTheme.PRIMARY, end_color=ColorTheme.PRIMARY, fill_type="solid")
+            primary_hex = ColorTheme.PRIMARY.lstrip("#")
+            header_fill = PatternFill(start_color=primary_hex, end_color=primary_hex, fill_type="solid")
             
             # Заголовки колонок
             columns = tree['columns']
@@ -1015,12 +1045,150 @@ class ReportsView(ctk.CTkFrame):
             ToastNotification(self, f"{get_text('error_exporting', self.lang)}: {e}", "error")
     
     def _show_performance_report(self) -> None:
-        """Отчёт по эффективности (заглушка с переводом)"""
-        ToastNotification(
-            self, 
-            get_text("report_under_construction", self.lang) or "🚧 Этот отчёт в разработке", 
-            "info"
-        )
+        """Отчёт по эффективности — аналитика заявок"""
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        
+        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        header.pack(fill="x", pady=10)
+        ctk.CTkLabel(
+            header,
+            text="📈 " + get_text("analytics", self.lang),
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=ColorTheme.TEXT_PRIMARY
+        ).pack(pady=10)
+        
+        btn_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=10)
+        ctk.CTkButton(
+            btn_frame,
+            text=get_text("back", self.lang),
+            command=self._show_reports_menu,
+            width=100, height=30
+        ).pack(side="left", padx=10)
+        
+        stats_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        stats_frame.pack(fill="x", padx=20, pady=10)
+        
+        try:
+            with self.db.get_cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM requests")
+                total = cur.fetchone()[0] or 0
+                
+                cur.execute("SELECT COUNT(*) FROM requests WHERE status IN ('ready', 'closed')")
+                completed = cur.fetchone()[0] or 0
+                
+                cur.execute("SELECT COALESCE(AVG(total_cost), 0) FROM requests WHERE status IN ('ready', 'closed')")
+                avg_cost = cur.fetchone()[0] or 0
+                
+                cur.execute("SELECT COUNT(*) FROM requests WHERE status IN ('new', 'diagnostics', 'in_progress')")
+                active = cur.fetchone()[0] or 0
+                
+                completion_pct = (completed / total * 100) if total > 0 else 0
+                
+                stats_config = [
+                    (get_text("requests_count", self.lang), str(total), ColorTheme.INFO),
+                    (get_text("completed_requests", self.lang) if get_text("completed_requests", self.lang) != "completed_requests" else "Завершено", str(completed), ColorTheme.SUCCESS),
+                    (get_text("active_requests", self.lang) if get_text("active_requests", self.lang) != "active_requests" else "Активные", str(active), ColorTheme.WARNING),
+                    (get_text("avg_request_cost", self.lang) if get_text("avg_request_cost", self.lang) != "avg_request_cost" else "Средний чек", format_currency(avg_cost, "RUB", self.lang), ColorTheme.PRIMARY),
+                    (get_text("completion_rate", self.lang) if get_text("completion_rate", self.lang) != "completion_rate" else "Выполнение", f"{completion_pct:.0f}%", ColorTheme.STATUS_READY),
+                ]
+                
+                for name, value, color in stats_config:
+                    frame = ctk.CTkFrame(stats_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+                    frame.pack(side="left", fill="x", expand=True, padx=5)
+                    ctk.CTkLabel(frame, text=name, text_color=ColorTheme.TEXT_SECONDARY, font=ctk.CTkFont(size=12)).pack(pady=(10, 5))
+                    ctk.CTkLabel(frame, text=value, text_color=color, font=ctk.CTkFont(size=18, weight="bold")).pack(pady=(5, 10))
+                
+                # Status breakdown table
+                table_frame = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+                table_frame.pack(fill="both", expand=True, padx=20, pady=10)
+                
+                ctk.CTkLabel(
+                    table_frame,
+                    text=get_text("status", self.lang) + " — " + get_text("requests", self.lang),
+                    font=ctk.CTkFont(size=14, weight="bold"),
+                    text_color=ColorTheme.TEXT_PRIMARY
+                ).pack(pady=(15, 10))
+                
+                for status_key, config in self.STATUS_CONFIG.items():
+                    cur.execute("SELECT COUNT(*) FROM requests WHERE status = ?", (status_key,))
+                    count = cur.fetchone()[0] or 0
+                    if count == 0:
+                        continue
+                    
+                    row_frame = ctk.CTkFrame(table_frame, fg_color="transparent")
+                    row_frame.pack(fill="x", padx=20, pady=3)
+                    
+                    label_key = f"label_{self.lang}"
+                    label = config.get(label_key, status_key)
+                    icon = config.get("icon", "")
+                    status_color = config.get("color", ColorTheme.TEXT_PRIMARY)
+                    
+                    ctk.CTkLabel(
+                        row_frame,
+                        text=f"{icon} {label}",
+                        font=ctk.CTkFont(size=13),
+                        text_color=ColorTheme.TEXT_PRIMARY,
+                        width=150, anchor="w"
+                    ).pack(side="left")
+                    
+                    pct = (count / total * 100) if total > 0 else 0
+                    bar_bg = ctk.CTkFrame(row_frame, fg_color=ColorTheme.BG_INPUT, height=20, corner_radius=4)
+                    bar_bg.pack(side="left", fill="x", expand=True, padx=(10, 10))
+                    bar_bg.pack_propagate(False)
+                    
+                    bar_width = max(pct / 100, 0.02)
+                    bar = ctk.CTkFrame(bar_bg, fg_color=status_color, corner_radius=4)
+                    bar.place(relx=0, rely=0, relwidth=bar_width, relheight=1.0)
+                    
+                    ctk.CTkLabel(
+                        row_frame,
+                        text=f"{count} ({pct:.0f}%)",
+                        font=ctk.CTkFont(size=12),
+                        text_color=ColorTheme.TEXT_SECONDARY,
+                        width=80
+                    ).pack(side="right")
+                
+                # Top masters
+                masters_frame = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+                masters_frame.pack(fill="x", padx=20, pady=(0, 10))
+                
+                ctk.CTkLabel(
+                    masters_frame,
+                    text=get_text("top_masters", self.lang) if get_text("top_masters", self.lang) != "top_masters" else "Топ мастеров",
+                    font=ctk.CTkFont(size=14, weight="bold"),
+                    text_color=ColorTheme.TEXT_PRIMARY
+                ).pack(pady=(15, 10))
+                
+                cur.execute("""
+                    SELECT u.full_name, COUNT(r.id) as cnt,
+                           COALESCE(SUM(r.total_cost), 0) as total
+                    FROM requests r
+                    JOIN users u ON r.user_id = u.id
+                    WHERE r.status IN ('ready', 'closed')
+                    GROUP BY u.id
+                    ORDER BY cnt DESC
+                    LIMIT 5
+                """)
+                masters = cur.fetchall()
+                
+                if masters:
+                    for m_name, m_count, m_total in masters:
+                        row_frame = ctk.CTkFrame(masters_frame, fg_color="transparent")
+                        row_frame.pack(fill="x", padx=20, pady=3)
+                        ctk.CTkLabel(row_frame, text=m_name or "—", text_color=ColorTheme.TEXT_PRIMARY, font=ctk.CTkFont(size=13), anchor="w", width=200).pack(side="left")
+                        ctk.CTkLabel(row_frame, text=f"{m_count} заявок", text_color=ColorTheme.TEXT_SECONDARY, font=ctk.CTkFont(size=12), width=100).pack(side="left", padx=10)
+                        ctk.CTkLabel(row_frame, text=format_currency(m_total, "RUB", self.lang), text_color=ColorTheme.SUCCESS, font=ctk.CTkFont(size=12, weight="bold")).pack(side="right", padx=20)
+                else:
+                    ctk.CTkLabel(masters_frame, text="—", text_color=ColorTheme.TEXT_SECONDARY).pack(pady=10)
+                
+                # Bottom padding
+                ctk.CTkFrame(masters_frame, fg_color="transparent", height=10).pack()
+        
+        except Exception as e:
+            app_logger.error(f"Error loading performance report: {e}")
+            ToastNotification(self, f"{get_text('error_loading', self.lang)}: {e}", "error")
     
     def refresh(self) -> None:
         """Публичный метод для обновления отчётов (вызов извне)"""

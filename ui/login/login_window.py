@@ -72,15 +72,26 @@ class LoginWindow(ctk.CTkToplevel):
     
     def _build_ui(self) -> None:
         """Построение интерфейса окна входа"""
-        # Заголовок
+        # Лого и заголовок
         header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=0)
         header.pack(fill="x")
         ctk.CTkLabel(
-            header, 
-            text=get_text("login", self.lang),
-            font=ctk.CTkFont(size=20, weight="bold"),
+            header,
+            text="🛠️",
+            font=ctk.CTkFont(size=36)
+        ).pack(pady=(20, 4))
+        ctk.CTkLabel(
+            header,
+            text="PC Repair CRM Pro",
+            font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=20)
+        ).pack(pady=(0, 4))
+        ctk.CTkLabel(
+            header,
+            text=get_text("login", self.lang),
+            font=ctk.CTkFont(size=13),
+            text_color=ColorTheme.TEXT_SECONDARY
+        ).pack(pady=(0, 16))
         
         # Форма входа
         form_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -90,29 +101,41 @@ class LoginWindow(ctk.CTkToplevel):
         ctk.CTkLabel(
             form_frame, 
             text=get_text("username", self.lang),
-            anchor="w"
-        ).pack(fill="x", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13),
+            text_color=ColorTheme.TEXT_SECONDARY
+        ).pack(fill="x", pady=(10, 4))
         self.username_entry = ctk.CTkEntry(
             form_frame,
             placeholder_text=get_text("enter_username", self.lang),
-            height=40
+            height=42,
+            corner_radius=10,
+            border_width=1,
+            border_color=ColorTheme.BORDER,
+            fg_color=ColorTheme.BG_INPUT
         )
-        self.username_entry.pack(fill="x", pady=5)
+        self.username_entry.pack(fill="x", pady=4)
         self.username_entry.bind("<Return>", lambda e: self._login())
         
         # Поле пароля
         ctk.CTkLabel(
             form_frame, 
             text=get_text("password", self.lang),
-            anchor="w"
-        ).pack(fill="x", pady=(10, 5))
+            anchor="w",
+            font=ctk.CTkFont(size=13),
+            text_color=ColorTheme.TEXT_SECONDARY
+        ).pack(fill="x", pady=(10, 4))
         self.password_entry = ctk.CTkEntry(
             form_frame,
             placeholder_text=get_text("enter_password", self.lang),
             show="*",
-            height=40
+            height=42,
+            corner_radius=10,
+            border_width=1,
+            border_color=ColorTheme.BORDER,
+            fg_color=ColorTheme.BG_INPUT
         )
-        self.password_entry.pack(fill="x", pady=5)
+        self.password_entry.pack(fill="x", pady=4)
         self.password_entry.bind("<Return>", lambda e: self._login())
         
         # Кнопка входа
@@ -120,12 +143,13 @@ class LoginWindow(ctk.CTkToplevel):
             form_frame,
             text=get_text("login", self.lang),
             command=self._login,
-            height=45,
+            height=44,
             font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color=ColorTheme.SUCCESS,
-            hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+            fg_color=ColorTheme.PRIMARY,
+            hover_color=ColorTheme.PRIMARY_HOVER,
+            corner_radius=10
         )
-        login_btn.pack(fill="x", pady=30)
+        login_btn.pack(fill="x", pady=(24, 0))
         
         # Ссылка на смену языка
         lang_btn = ctk.CTkButton(
@@ -133,12 +157,13 @@ class LoginWindow(ctk.CTkToplevel):
             text=f"🌍 {self.lang.upper()}",
             command=self._toggle_language,
             width=80,
-            height=30,
+            height=28,
             fg_color="transparent",
             border_width=1,
             border_color=ColorTheme.BORDER,
             text_color=ColorTheme.TEXT_SECONDARY,
-            hover_color=ColorTheme.BG_HOVER
+            hover_color=ColorTheme.BG_HOVER,
+            corner_radius=8
         )
         lang_btn.pack(side="bottom", pady=10)
         
