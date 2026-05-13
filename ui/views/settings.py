@@ -73,14 +73,14 @@ class SettingsView(ctk.CTkFrame):
         """Построение интерфейса настроек с полным переводом"""
         
         # 🏷️ Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.TEXT_SECONDARY, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        header.pack(fill="x", padx=10, pady=(5, 0))
         ctk.CTkLabel(
             header,
             text="⚙️ " + get_text("settings", self.lang),
-            font=ctk.CTkFont(size=24, weight="bold"),
+            font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY,
-        ).pack(pady=15)
+        ).pack(pady=12)
         
         # 🔙 Кнопка назад
         ctk.CTkButton(
@@ -88,10 +88,12 @@ class SettingsView(ctk.CTkFrame):
             text=get_text("back", self.lang),
             command=lambda: self.on_navigate("dashboard") if self.on_navigate else None,
             width=120,
-            height=35,
-            fg_color=ColorTheme.TEXT_SECONDARY,
+            height=32,
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorTheme.BG_HOVER,
             corner_radius=10,
-        ).pack(padx=30, pady=20, anchor="w")
+            font=ctk.CTkFont(size=12)
+        ).pack(padx=20, pady=(12, 5), anchor="w")
         
         # 📑 Вкладки настроек
         notebook = ctk.CTkTabview(self, fg_color="transparent")

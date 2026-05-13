@@ -49,21 +49,23 @@ class ReferenceView(ctk.CTkFrame):
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.INFO, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        header.pack(fill="x", padx=10, pady=(5, 0))
         ctk.CTkLabel(
             header, text=get_text("reference", self.lang),
-            font=ctk.CTkFont(size=24, weight="bold"),
+            font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=20)
+        ).pack(pady=12)
         
         ctk.CTkButton(
             self, text=get_text("back", self.lang),
             command=self._go_back,
-            width=150, height=35, 
-            fg_color=ColorTheme.TEXT_SECONDARY,
-            corner_radius=10
-        ).pack(padx=20, pady=20, anchor="w")
+            width=120, height=32, 
+            fg_color=ColorTheme.BG_INPUT,
+            hover_color=ColorTheme.BG_HOVER,
+            corner_radius=10,
+            font=ctk.CTkFont(size=12)
+        ).pack(padx=20, pady=(12, 5), anchor="w")
         
         self.content_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.content_frame.pack(fill="both", expand=True, padx=20, pady=10)
@@ -95,17 +97,27 @@ class ReferenceView(ctk.CTkFrame):
         
         for i, (icon, name, command, color) in enumerate(items):
             row, col = divmod(i, 2)
+            
+            card = ctk.CTkFrame(grid_frame, fg_color=ColorTheme.BG_CARD, corner_radius=16, border_width=1, border_color=ColorTheme.BORDER)
+            card.grid(row=row, column=col, padx=12, pady=12, sticky="nsew")
+            
+            accent = ctk.CTkFrame(card, fg_color=color, height=4, corner_radius=2)
+            accent.pack(fill="x", padx=20, pady=(16, 0))
+            
+            ctk.CTkLabel(card, text=icon, font=ctk.CTkFont(size=32)).pack(pady=(12, 4))
+            ctk.CTkLabel(card, text=name, font=ctk.CTkFont(size=14, weight="bold"), text_color=ColorTheme.TEXT_PRIMARY).pack(pady=(0, 4))
+            
             btn = ctk.CTkButton(
-                grid_frame, 
-                text=f"{icon} {name}",
-                height=100, 
+                card,
+                text=get_text("open", self.lang) if get_text("open", self.lang) != "open" else "Открыть",
+                height=32, width=120,
                 command=command,
-                font=ctk.CTkFont(size=14, weight="bold"),
-                corner_radius=12, 
-                fg_color=ColorTheme.BG_INPUT,
-                hover_color=ColorUtils.darken(color, 10) if color else ColorTheme.PRIMARY_HOVER
+                font=ctk.CTkFont(size=12),
+                corner_radius=8,
+                fg_color=color,
+                hover_color=ColorUtils.darken(color, 15)
             )
-            btn.grid(row=row, column=col, padx=15, pady=15, sticky="nsew")
+            btn.pack(pady=(4, 16))
         
         grid_frame.grid_columnconfigure((0, 1), weight=1)
         grid_frame.grid_rowconfigure((0, 1), weight=1)

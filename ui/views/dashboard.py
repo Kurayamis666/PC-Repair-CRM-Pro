@@ -67,13 +67,13 @@ class DashboardView(ctk.CTkFrame):
         """Построение интерфейса дашборда с полным переводом"""
         
         # 1. Заголовок
-        header = ctk.CTkFrame(self, fg_color=ColorTheme.INFO, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self, fg_color=ColorTheme.PRIMARY, corner_radius=12)
+        header.pack(fill="x", padx=10, pady=(5, 0))
         ctk.CTkLabel(
             header, text=get_text("dashboard", self.lang),
-            font=ctk.CTkFont(size=24, weight="bold"),
+            font=ctk.CTkFont(size=22, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=10)
+        ).pack(pady=12)
 
         # 2. Навигационное меню
         nav_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -88,13 +88,17 @@ class DashboardView(ctk.CTkFrame):
         ]
         
         for text, view, color in nav_items:
+            is_active = view == "dashboard"
             ctk.CTkButton(
                 nav_frame, text=text,
                 command=lambda v=view: self.on_navigate(v) if self.on_navigate else None,
-                width=140, height=35, corner_radius=8,
+                width=140, height=36, corner_radius=10,
                 fg_color=color, text_color=ColorTheme.TEXT_PRIMARY,
-                hover_color=ColorUtils.darken(color, 10) if color != ColorTheme.PRIMARY else ColorTheme.PRIMARY_HOVER
-            ).pack(side="left", padx=5)
+                hover_color=ColorUtils.darken(color, 10) if color != ColorTheme.PRIMARY else ColorTheme.PRIMARY_HOVER,
+                border_width=1 if is_active else 0,
+                border_color=ColorTheme.PRIMARY if is_active else ColorTheme.BG_INPUT,
+                font=ctk.CTkFont(size=13, weight="bold" if is_active else "normal")
+            ).pack(side="left", padx=4)
 
         # 3. Панель действий
         top_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -123,13 +127,16 @@ class DashboardView(ctk.CTkFrame):
         ]
         
         for key, title, color in stats_config:
-            card = ctk.CTkFrame(stats_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+            card = ctk.CTkFrame(stats_frame, fg_color=ColorTheme.BG_CARD, corner_radius=14, border_width=1, border_color=ColorTheme.BORDER)
             card.pack(side="left", fill="x", expand=True, padx=5, pady=5)
             
-            ctk.CTkLabel(card, text=title, font=ctk.CTkFont(size=12), text_color=ColorTheme.TEXT_SECONDARY).pack(pady=(10, 0))
+            accent = ctk.CTkFrame(card, fg_color=color, height=3, corner_radius=2)
+            accent.pack(fill="x", padx=12, pady=(8, 0))
+            
+            ctk.CTkLabel(card, text=title, font=ctk.CTkFont(size=12), text_color=ColorTheme.TEXT_SECONDARY).pack(pady=(6, 0))
             lbl = ctk.CTkLabel(card, text="0", font=ctk.CTkFont(size=20, weight="bold"), text_color=color)
-            lbl.pack(pady=(5, 10))
-            self._stat_labels[key] = lbl  # ✅ Сохраняем ссылку
+            lbl.pack(pady=(4, 10))
+            self._stat_labels[key] = lbl
 
         # 5. Фильтры
         filter_frame = ctk.CTkFrame(self, fg_color="transparent")
