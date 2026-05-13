@@ -6,6 +6,8 @@
 ✅ СОВМЕСТИМО: Интеграция с системой тем и переводов
 """
 
+import sqlite3
+
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from typing import Optional, Callable
@@ -211,6 +213,8 @@ class DocumentsView(ctk.CTkFrame):
                     cur.execute("DELETE FROM equipment WHERE id = ?", (eq_id,))
                 self._load_equipment()
                 ToastNotification(self, "✅ " + get_text("deleted", self.lang), "success")
+            except sqlite3.IntegrityError:
+                ToastNotification(self, "❌ " + get_text("cannot_delete_in_use", self.lang), "error")
             except Exception as e:
                 ToastNotification(self, f"❌ {e}", "error")
 
