@@ -163,6 +163,17 @@ class DatabaseConnection:
                     if column not in employee_columns:
                         cur.execute(sql)
                         app_logger.info(f"✅ Migration applied: employees.{column}")
+                # Создаём request_parts если не существует
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='request_parts'")
+                if not cur.fetchone():
+                    cur.execute('''CREATE TABLE IF NOT EXISTS request_parts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, request_id INTEGER NOT NULL, part_id INTEGER NOT NULL,
+                        quantity INTEGER DEFAULT 1 CHECK(quantity > 0), price REAL DEFAULT 0 CHECK(price >= 0),
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+                        FOREIGN KEY (part_id) REFERENCES parts(id) ON DELETE CASCADE)''')
+                    app_logger.info("✅ Migration applied: request_parts table created")
+
                 cur.execute("PRAGMA table_info(parts)")
                 part_columns = {row[1] for row in cur.fetchall()}
                 for column, sql in {
@@ -260,7 +271,15 @@ class DatabaseConnection:
             notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (contractor_id) REFERENCES contractors(id))''')
 
-        # 9. Справочники
+        # 9. Запчасти в заявках
+        cursor.execute('''CREATE TABLE IF NOT EXISTS request_parts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, request_id INTEGER NOT NULL, part_id INTEGER NOT NULL,
+            quantity INTEGER DEFAULT 1 CHECK(quantity > 0), price REAL DEFAULT 0 CHECK(price >= 0),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+            FOREIGN KEY (part_id) REFERENCES parts(id) ON DELETE CASCADE)''')
+
+        # 10. Справочники
         cursor.execute('''CREATE TABLE IF NOT EXISTS directories (
             id INTEGER PRIMARY KEY AUTOINCREMENT, nom_type TEXT, unit TEXT, sku TEXT,
             coefficient REAL DEFAULT 1, notes TEXT,

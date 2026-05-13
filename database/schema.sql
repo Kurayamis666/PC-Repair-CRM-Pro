@@ -153,6 +153,18 @@ CREATE TABLE parts (
     FOREIGN KEY (contractor_id) REFERENCES contractors(id) ON DELETE SET NULL
 );
 
+-- ==================== 8.1. ЗАПЧАСТИ В ЗАЯВКАХ ====================
+CREATE TABLE request_parts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id INTEGER NOT NULL,
+    part_id INTEGER NOT NULL,
+    quantity INTEGER DEFAULT 1 CHECK(quantity > 0),
+    price REAL DEFAULT 0 CHECK(price >= 0),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+    FOREIGN KEY (part_id) REFERENCES parts(id) ON DELETE CASCADE
+);
+
 -- ==================== 9. АНАЛОГИ ЗАПЧАСТЕЙ ====================
 CREATE TABLE part_analogs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -222,7 +234,7 @@ END;
 -- Пользователь admin (пароль: 123, хеш PBKDF2+соль)
 -- ⚠️ В продакшене используйте utils.helpers.hash_password()
 INSERT INTO users (username, password, password_salt, role, full_name) VALUES 
-('admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'default_salt_123', 'admin', 'Администратор Системы');
+('admin', '2e6af479515abed56a23a68edfa976fb53650349eb3ce13980ee8a4d463de0a8', 'default_salt_123', 'admin', 'Администратор Системы');
 
 -- Филиал
 INSERT INTO branches (id, name, address) VALUES (1, 'Главный офис', 'г. Москва, ул. Примерная, д. 1');
