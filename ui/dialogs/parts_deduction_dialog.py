@@ -63,19 +63,19 @@ class PartsDeductionDialog(ctk.CTkToplevel):
         self.title(f"{title} #{request_id}")
         
         self.geometry("650x550")
-        self.minsize(550, 480)  # ✅ Адаптивный минимальный размер
+        self.minsize(550, 480)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🎯 Центрирование
+        self._build_ui()
+        self._load_available_parts()
+        
+        # Центрирование и модальность — после построения UI
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 650) // 2
         y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
-        
-        self._build_ui()
-        self._load_available_parts()
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""

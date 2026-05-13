@@ -54,21 +54,21 @@ class PartAnalogsDialog(ctk.CTkToplevel):
         self.title(f"{title}: {part_name}")
         
         self.geometry("780x550")
-        self.minsize(700, 500)  # ✅ Адаптивный минимальный размер
+        self.minsize(700, 500)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
-        
-        # 🎯 Центрирование
-        self.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() - 780) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
-        self.geometry(f"+{max(0, x)}+{max(0, y)}")
         
         self._ensure_table()
         self._build_ui()
         self._load_analogs()
         self._update_available_parts()
+        
+        # Центрирование и модальность — после построения UI
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - 780) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
+        self.geometry(f"+{max(0, x)}+{max(0, y)}")
+        self.grab_set()
     
     def _ensure_table(self) -> None:
         """Создание таблицы связей, если не существует"""

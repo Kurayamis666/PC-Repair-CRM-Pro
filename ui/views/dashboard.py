@@ -342,12 +342,10 @@ class DashboardView(ctk.CTkFrame):
         request_id = self.tree.item(sel[0])['values'][0]
         try:
             from ui.dialogs.request_editor import RequestEditorDialog
-            dialog = RequestEditorDialog(
+            RequestEditorDialog(
                 self, request_id=request_id, lang=self.lang,
                 on_save=self._load_requests
             )
-            dialog.transient(self)
-            dialog.grab_set()
         except ImportError as e:
             app_logger.warning(f"⚠️ Could not import RequestEditorDialog: {e}")
             ToastNotification(self, "⚠️ " + get_text("edit_request_unavailable", self.lang) or "Редактирование доступно в разделе Документы", "warning")

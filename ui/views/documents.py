@@ -223,9 +223,8 @@ class EquipmentDialog(ctk.CTkToplevel):
         super().__init__(parent)
         self.title(title)
         self.geometry("500x650")
-        self.minsize(450, 600)  # ✅ Адаптивный минимальный размер
+        self.minsize(450, 600)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         self.result = False
         self.lang = lang
@@ -234,15 +233,16 @@ class EquipmentDialog(ctk.CTkToplevel):
         self.equipment_id = equipment_id
         self.employee_ids: list = []
         
-        # Центрирование
+        self._build_ui()
+        if equipment_id:
+            self._load_equipment(equipment_id)
+        
+        # Центрирование и модальность — после построения UI
         self.update_idletasks()
         x = (self.winfo_screenwidth() - 500) // 2
         y = (self.winfo_screenheight() - 650) // 2
         self.geometry(f"+{x}+{y}")
-        
-        self._build_ui()
-        if equipment_id:
-            self._load_equipment(equipment_id)
+        self.grab_set()
     
     def _build_ui(self):
         """Построение интерфейса диалога с валидацией"""

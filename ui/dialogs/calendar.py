@@ -67,21 +67,18 @@ class CalendarPopup(ctk.CTkToplevel):
         self.title(get_text("select_date", self.lang) or "Выберите дату")
         
         self.geometry("360x420")
-        self.minsize(self.MIN_WIDTH, self.MIN_HEIGHT)  # ✅ Адаптивный минимальный размер
+        self.minsize(self.MIN_WIDTH, self.MIN_HEIGHT)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🛡️ Обработчик закрытия окна (крестик = отмена)
         self.protocol("WM_DELETE_WINDOW", self.destroy)
         
-        # 🎯 Центрирование
-        self._center_window(parent)
-        
         self._build_ui()
-        
-        # ⌨️ Горячие клавиши
         self._bind_hotkeys()
+        
+        # Центрирование и модальность — после построения UI
+        self._center_window(parent)
+        self.grab_set()
     
     def _center_window(self, parent: ctk.CTkBaseClass) -> None:
         """Центрирование окна относительно родителя"""

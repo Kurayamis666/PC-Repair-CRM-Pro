@@ -76,28 +76,28 @@ class RequestEditorDialog(ctk.CTkToplevel):
         self.title(title)
         
         self.geometry("600x720")
-        self.minsize(550, 650)  # ✅ Адаптивный минимальный размер
+        self.minsize(550, 650)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
         
-        # 🎯 Центрирование
+        self._build_ui()
+        
+        # Загружаем данные
+        self._load_employees()
+        
+        if request_id:
+            self._load_request_data()
+        elif self.prefill:
+            self._apply_prefill()
+        
+        # Центрирование и модальность — после построения UI
         self.update_idletasks()
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         x = (screen_width - 600) // 2
         y = (screen_height - 720) // 2
         self.geometry(f"+{x}+{y}")
-        
-        self._build_ui()
-        
-        # Загружаем данные
-        self._load_employees()  # ✅ employees вместо clients
-        
-        if request_id:
-            self._load_request_data()
-        elif self.prefill:
-            self._apply_prefill()
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
@@ -126,14 +126,13 @@ class RequestEditorDialog(ctk.CTkToplevel):
         
         self._client_combo = ctk.CTkComboBox(
             scroll_frame,
-            values=[],  # Заполнится в _load_employees()
+            values=[],
             width=420,
             height=40,
             fg_color=ColorTheme.BG_INPUT,
             text_color=ColorTheme.TEXT_PRIMARY,
             dropdown_fg_color=ColorTheme.BG_CARD,
-            command=self._on_employee_change,  # ✅ callback при выборе
-            placeholder_text=get_text("search_employee", self.lang) or "Поиск сотрудника..."
+            command=self._on_employee_change,
         )
         self._client_combo.pack(pady=5)
         

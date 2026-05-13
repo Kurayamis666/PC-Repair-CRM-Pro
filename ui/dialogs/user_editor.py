@@ -73,16 +73,9 @@ class UserEditorDialog(ctk.CTkToplevel):
         self.title(get_text(title_key, self.lang) or ("Редактирование пользователя" if user_id else "Новый пользователь"))
         
         self.geometry("450x550")
-        self.minsize(400, 500)  # ✅ Разрешить масштабирование
+        self.minsize(400, 500)
         self.transient(parent)
-        self.grab_set()
         self.configure(fg_color=ColorTheme.BG_CARD)
-        
-        # 🎯 Центрирование относительно родителя
-        self.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() - 450) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
-        self.geometry(f"+{max(0, x)}+{max(0, y)}")
         
         self._original_username: str = ""
         
@@ -93,6 +86,13 @@ class UserEditorDialog(ctk.CTkToplevel):
         
         if user_id:
             self._load_user_data()
+        
+        # Центрирование и модальность — после построения UI
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - 450) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
+        self.geometry(f"+{max(0, x)}+{max(0, y)}")
+        self.grab_set()
     
     def _build_ui(self) -> None:
         """Построение интерфейса с полным переводом"""
