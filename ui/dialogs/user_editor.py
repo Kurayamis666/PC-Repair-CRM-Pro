@@ -72,8 +72,8 @@ class UserEditorDialog(ctk.CTkToplevel):
         title_key = "edit_user" if user_id else "new_user"
         self.title(get_text(title_key, self.lang) or ("Редактирование пользователя" if user_id else "Новый пользователь"))
         
-        self.geometry("450x550")
-        self.minsize(400, 500)
+        self.geometry("450x650")
+        self.minsize(400, 600)
         self.transient(parent)
         self.configure(fg_color=ColorTheme.BG_CARD)
         
@@ -90,7 +90,7 @@ class UserEditorDialog(ctk.CTkToplevel):
         # Центрирование и модальность — после построения UI
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 450) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 650) // 2
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
         self.grab_set()
     
