@@ -84,6 +84,8 @@ class UserEditorDialog(ctk.CTkToplevel):
         y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
         
+        self._original_username: str = ""
+        
         self._build_ui()
         
         # 🎯 Фокус на поле логина
@@ -328,6 +330,7 @@ class UserEditorDialog(ctk.CTkToplevel):
                 
                 if row:
                     username, role, branch_id = row
+                    self._original_username = username
                     
                     # Устанавливаем логин
                     if self._username_entry:

@@ -367,8 +367,16 @@ class EquipmentDialog(ctk.CTkToplevel):
         
         try:
             # Получаем ID сотрудника
-            emp_idx = self.employee_combo.current()
-            client_id = self.employee_ids[emp_idx] if 0 <= emp_idx < len(self.employee_ids) else None
+            selected_name = self.employee_combo.get()
+            combo_values = self.employee_combo.cget("values")
+            client_id = None
+            if selected_name and selected_name != "—" and combo_values:
+                try:
+                    emp_idx = list(combo_values).index(selected_name)
+                    if 0 <= emp_idx < len(self.employee_ids):
+                        client_id = self.employee_ids[emp_idx]
+                except ValueError:
+                    pass
             
             data = (
                 client_id, 

@@ -163,11 +163,14 @@ class LoginWindow(ctk.CTkToplevel):
         self.geometry(f"+{max(0, x)}+{max(0, y)}")
     
     def _toggle_language(self) -> None:
-        """Переключение языка интерфейса"""
+        """Переключение языка интерфейса с перестроением UI"""
         new_lang = "en" if self.lang == "ru" else "ru"
         self.lang = new_lang
         self.title(get_text("login", self.lang))
         app_logger.info(f"🌍 Language toggled to: {self.lang}")
+        for widget in self.winfo_children():
+            widget.destroy()
+        self._build_ui()
     
     def _login(self) -> None:
         """Обработка входа в систему"""

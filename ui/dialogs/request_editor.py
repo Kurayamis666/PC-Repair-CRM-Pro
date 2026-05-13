@@ -170,7 +170,6 @@ class RequestEditorDialog(ctk.CTkToplevel):
             height=100, 
             fg_color=ColorTheme.BG_INPUT, 
             text_color=ColorTheme.TEXT_PRIMARY,
-            placeholder_text=get_text("describe_problem", self.lang) or "Опишите проблему..."
         )
         self._problem_desc.pack(pady=5)
         self._problem_desc.bind("<KeyRelease>", lambda e: self._validate_problem_length())
