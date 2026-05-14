@@ -1,0 +1,42 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "main.py"
+      - "requirements.txt"
+      - "pc_repair_crm_pro.spec"
+      - "packaging/**"
+      - "hooks/**"
+      - "core/**"
+      - "database/**"
+      - "models/**"
+      - "services/**"
+      - "translations/**"
+      - "ui/**"
+      - "utils/**"
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build executable
+        shell: pwsh
+        run: ./packaging/build_exe.ps1
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PC-Repair-CRM-Pro-Windows-EXE
+          path: dist/PC Repair CRM Pro/**
+          if-no-files-found: error

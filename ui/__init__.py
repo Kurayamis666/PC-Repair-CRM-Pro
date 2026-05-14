@@ -15,17 +15,7 @@
 
 from typing import TYPE_CHECKING, Any
 
-# ==================== 🎨 THEME (без циклических импортов) ====================
-# Импортируем тему отдельно — она не зависит от остальных компонентов
-from ui.theme import (
-    ColorTheme,
-    ColorUtils,
-    ColorPalette,
-    ThemeManager,
-    DARK_THEME,
-    LIGHT_THEME,
-    theme as theme_manager,  # Быстрый доступ: ui.theme_manager
-)
+# ==================== 🎨 THEME (ленивая загрузка) ====================
 
 # ==================== 🚀 LAZY IMPORTS ДЛЯ ОСНОВНЫХ КОМПОНЕНТОВ ====================
 # Ленивая загрузка тяжёлых компонентов (customtkinter, tkinter)
@@ -45,6 +35,20 @@ def __getattr__(name: str) -> Any:
     if name == "App":
         from ui.app import App
         return App
+
+    if name in {
+        "ColorTheme",
+        "ColorUtils",
+        "ColorPalette",
+        "ThemeManager",
+        "DARK_THEME",
+        "LIGHT_THEME",
+        "theme_manager",
+    }:
+        from ui import theme as theme_module
+        if name == "theme_manager":
+            return theme_module.theme
+        return getattr(theme_module, name)
     
     elif name == "LoginWindow":
         from ui.login.login_window import LoginWindow
@@ -159,8 +163,10 @@ __description__ = "User interface components for PC Repair CRM Pro"
 
 
 # ==================== 🛠️ HELPER FUNCTIONS ====================
-def get_theme() -> ColorPalette:
+def get_theme() -> "ColorPalette":
     """Получить текущую палитру цветов"""
+    from ui import theme_manager
+
     return theme_manager.current
 
 
@@ -171,6 +177,8 @@ def set_theme(theme_name: str) -> None:
     Args:
         theme_name: "dark" или "light"
     """
+    from ui import theme_manager
+
     theme_manager.set_theme(theme_name)  # type: ignore
 
 
