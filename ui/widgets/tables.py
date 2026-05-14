@@ -30,6 +30,8 @@ class TableStyle:
     
     _initialized: bool = False
     _style: Optional[ttk.Style] = None
+    CELL_X_PADDING: int = 12
+    MIN_COLUMN_WIDTH: int = 80
     
     @classmethod
     def setup(cls, style: Optional[ttk.Style] = None, scale: float = 1.0) -> ttk.Style:
@@ -53,56 +55,63 @@ class TableStyle:
         font_size = int(12 * scale)
         heading_font_size = int(12 * scale)
         
+        tree_options = {
+            "background": "#1e293b",
+            "fieldbackground": "#1e293b",
+            "foreground": ColorTheme.TEXT_PRIMARY,
+            "rowheight": row_height,
+            "borderwidth": 0,
+            "selectbackground": "#4f46e5",
+            "selectforeground": "#FFFFFF",
+            "font": ("Segoe UI", font_size),
+            "padding": (4, 2),
+        }
+        item_options = {"padding": (cls.CELL_X_PADDING, 0, cls.CELL_X_PADDING, 0)}
+
         # 🎨 Основная конфигурация Treeview
-        style.configure(
-            "Custom.Treeview",
-            background="#1e293b",
-            fieldbackground="#1e293b",
-            foreground=ColorTheme.TEXT_PRIMARY,
-            rowheight=row_height,
-            borderwidth=0,
-            selectbackground="#4f46e5",
-            selectforeground="#FFFFFF",
-            font=("Segoe UI", font_size),
-            padding=(4, 2),
-        )
-        
+        for tree_style in ("Treeview", "Custom.Treeview"):
+            style.configure(tree_style, **tree_options)
+            style.configure(f"{tree_style}.Item", **item_options)
+
         # 🎯 Заголовки колонок
-        style.configure(
-            "Custom.Treeview.Heading",
-            background="#334155",
-            foreground="#e2e8f0",
-            font=("Segoe UI", heading_font_size, "bold"),
-            relief="flat",
-            padding=(8, 6),
-        )
-        
+        heading_options = {
+            "background": "#334155",
+            "foreground": "#e2e8f0",
+            "font": ("Segoe UI", heading_font_size, "bold"),
+            "relief": "flat",
+            "padding": (12, 6),
+        }
+        for heading_style in ("Treeview.Heading", "Custom.Treeview.Heading"):
+            style.configure(heading_style, **heading_options)
+
         # 🖱️ Состояния при наведении/выборе
-        style.map(
-            "Custom.Treeview",
-            background=[
+        tree_map = {
+            "background": [
                 ("selected", "#4f46e5"),
                 ("active", "#2d3a4e"),
                 ("!selected", "#1e293b"),
             ],
-            foreground=[
+            "foreground": [
                 ("selected", "#FFFFFF"),
                 ("!selected", ColorTheme.TEXT_PRIMARY),
             ],
-        )
-        
-        style.map(
-            "Custom.Treeview.Heading",
-            background=[
+        }
+        for tree_style in ("Treeview", "Custom.Treeview"):
+            style.map(tree_style, **tree_map)
+
+        heading_map = {
+            "background": [
                 ("active", "#475569"),
                 ("pressed", "#3b4f6b"),
             ],
-            foreground=[
+            "foreground": [
                 ("active", "#FFFFFF"),
                 ("pressed", "#FFFFFF"),
             ],
-        )
-        
+        }
+        for heading_style in ("Treeview.Heading", "Custom.Treeview.Heading"):
+            style.map(heading_style, **heading_map)
+
         cls._initialized = True
         return style
     
@@ -258,7 +267,12 @@ class DataTable(ttk.Treeview):
             width = self._column_widths.get(col, 120)
             # Let last column stretch to fill available space
             is_last = (i == total_cols - 1)
-            self.column(col, width=width, minwidth=60, stretch=is_last)
+            self.column(
+                col,
+                width=width + TableStyle.CELL_X_PADDING * 2,
+                minwidth=TableStyle.MIN_COLUMN_WIDTH,
+                stretch=is_last,
+            )
     
     def _enable_header_sorting(self):
         """Включить сортировку по клику на заголовок"""
