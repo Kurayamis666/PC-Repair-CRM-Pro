@@ -112,6 +112,7 @@ _COMMON_TRANSLATIONS: Dict[Language, TranslationsDict] = {
         "cannot_delete_in_use": "Невозможно удалить — запись используется в других данных",
         "confirm_delete": "Подтверждение удаления", "deleted": "Удалено", "updated": "Обновлено", "added": "Добавлено",
         "record_saved": "Запись сохранена", "select_row": "Выберите строку", "no_records_match": "Нет подходящих записей",
+        "no_results": "Ничего не найдено",
         "search_placeholder": "Введите текст для поиска...", "search_user": "Поиск пользователя...",
         "today": "Сегодня", "never": "Никогда", "other": "Другое",
         # === Номенклатура и единицы ===
@@ -350,6 +351,7 @@ _COMMON_TRANSLATIONS: Dict[Language, TranslationsDict] = {
         "cannot_delete_in_use": "Cannot delete — record is referenced by other data",
         "confirm_delete": "Confirm delete", "deleted": "Deleted", "updated": "Updated", "added": "Added",
         "record_saved": "Record saved", "select_row": "Select a row", "no_records_match": "No matching records",
+        "no_results": "No results found",
         "search_placeholder": "Enter search text...", "search_user": "Search user...", "today": "Today",
         "never": "Never", "other": "Other",
         # === Nomenclature & units ===

@@ -88,42 +88,53 @@ class DocumentsView(ctk.CTkFrame):
         return f"{icon} {label}"
 
     def _build_requests_tab(self):
-        """Вкладка Заявок — полный CRUD"""
-        # Заголовок вкладки
-        ctk.CTkLabel(
-            self.tab_requests, 
-            text="📋 " + get_text("requests", self.lang),
-            font=ctk.CTkFont(size=18, weight="bold"),
-            text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=10)
+        """Вкладка Заявок — полный CRUD с поиском"""
+        # Панель управления + поиск
+        control_frame = ctk.CTkFrame(self.tab_requests, fg_color="transparent")
+        control_frame.pack(fill="x", padx=20, pady=(10, 5))
         
-        # Кнопки управления
-        btn_frame = ctk.CTkFrame(self.tab_requests, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=10)
+        btn_frame = ctk.CTkFrame(control_frame, fg_color="transparent")
+        btn_frame.pack(side="left", fill="x", expand=True)
         
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_request, width=130, height=30,
+                     command=self._add_request, width=120, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
-        ).pack(side="left", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_request, width=130, height=30,
+                     command=self._edit_request, width=120, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
-        ).pack(side="left", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_request, width=130, height=30,
+                     command=self._delete_request, width=120, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
-        ).pack(side="left", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
         ctk.CTkButton(btn_frame, text="🔄 " + get_text("update", self.lang), 
-                     command=self._load_requests, width=130, height=30,
+                     command=self._load_requests, width=120, height=32,
                      fg_color=ColorTheme.TEXT_SECONDARY,
-                     hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10)
-        ).pack(side="right", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
+        
+        # Поиск заявок
+        from ui.widgets.search_bar import SearchBar
+        self.req_search = SearchBar(
+            control_frame,
+            placeholder=get_text("search_placeholder", self.lang) or "Поиск заявок...",
+            on_search=self._search_requests,
+            on_reset=self._load_requests,
+            show_find_button=False,
+            lang=self.lang,
+        )
+        self.req_search.pack(side="right", padx=(10, 0))
         
         # Таблица заявок
-        table_frame = ctk.CTkFrame(self.tab_requests, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(self.tab_requests, fg_color="#1e293b", corner_radius=10)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
@@ -211,6 +222,56 @@ class DocumentsView(ctk.CTkFrame):
             app_logger.error(f"Error loading requests: {e}")
             ToastNotification(self, f"{get_text('error_loading', self.lang)}: {e}", "error")
 
+    def _search_requests(self, query: str) -> None:
+        """Поиск заявок по тексту"""
+        self.req_tree.delete(*self.req_tree.get_children())
+        
+        try:
+            with self.db.get_cursor() as cur:
+                search_param = f"%{query}%"
+                cur.execute("""
+                    SELECT r.id, r.created_at, emp.full_name, e.model, r.status, r.total_cost, u.username
+                    FROM requests r
+                    LEFT JOIN employees emp ON r.client_id = emp.id
+                    LEFT JOIN equipment e ON r.equipment_id = e.id
+                    LEFT JOIN users u ON r.user_id = u.id
+                    WHERE CAST(r.id AS TEXT) LIKE ? 
+                       OR emp.full_name LIKE ? 
+                       OR e.model LIKE ? 
+                       OR r.status LIKE ? 
+                       OR u.username LIKE ?
+                       OR r.problem_desc LIKE ?
+                    ORDER BY r.created_at DESC
+                """, (search_param, search_param, search_param, search_param, search_param, search_param))
+                rows = cur.fetchall()
+            
+            if not rows:
+                self.req_tree.show_empty_state(
+                    message=get_text("no_results", self.lang) or "Ничего не найдено",
+                    icon="🔍"
+                )
+                return
+            else:
+                self.req_tree.hide_empty_state()
+            
+            for idx, row in enumerate(rows):
+                r_id, date, employee, equip, status, cost, master = row
+                tag = "odd" if idx % 2 else "even"
+                values = (
+                    r_id,
+                    (date or "")[:10],
+                    employee or "—",
+                    equip or "—",
+                    self._get_status_display(status),
+                    format_currency(cost, "RUB", self.lang),
+                    master or "—"
+                )
+                self.req_tree.insert("", "end", values=values, tags=(tag,))
+                
+        except Exception as e:
+            app_logger.error(f"Error searching requests: {e}")
+            ToastNotification(self, f"{get_text('error_loading', self.lang)}: {e}", "error")
+
     def _add_request(self) -> None:
         """Создание новой заявки"""
         from ui.dialogs.request_editor import RequestEditorDialog
@@ -255,42 +316,53 @@ class DocumentsView(ctk.CTkFrame):
                 ToastNotification(self, f"❌ {e}", "error")
     
     def _build_equipment_tab(self):
-        """Вкладка Оборудования - ПОЛНОСТЬЮ РАБОЧАЯ"""
-        # Заголовок вкладки
-        ctk.CTkLabel(
-            self.tab_equipment, 
-            text="💻 " + get_text("equipment", self.lang),
-            font=ctk.CTkFont(size=18, weight="bold"),
-            text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=10)
+        """Вкладка Оборудования с поиском"""
+        # Панель управления + поиск
+        control_frame = ctk.CTkFrame(self.tab_equipment, fg_color="transparent")
+        control_frame.pack(fill="x", padx=20, pady=(10, 5))
         
-        # Кнопки управления
-        btn_frame = ctk.CTkFrame(self.tab_equipment, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=10)
+        btn_frame = ctk.CTkFrame(control_frame, fg_color="transparent")
+        btn_frame.pack(side="left", fill="x", expand=True)
         
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_equipment, width=130, height=30,
+                     command=self._add_equipment, width=120, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
-        ).pack(side="left", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_equipment, width=130, height=30,
+                     command=self._edit_equipment, width=120, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
-        ).pack(side="left", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_equipment, width=130, height=30,
+                     command=self._delete_equipment, width=120, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
-        ).pack(side="left", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
         ctk.CTkButton(btn_frame, text="🔄 " + get_text("update", self.lang), 
-                     command=self._load_equipment, width=130, height=30,
+                     command=self._load_equipment, width=120, height=32,
                      fg_color=ColorTheme.TEXT_SECONDARY,
-                     hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10)
-        ).pack(side="right", padx=5)
+                     hover_color=ColorUtils.darken(ColorTheme.TEXT_SECONDARY, 10),
+                     corner_radius=8
+        ).pack(side="left", padx=3)
+        
+        # Поиск оборудования
+        from ui.widgets.search_bar import SearchBar
+        self.eq_search = SearchBar(
+            control_frame,
+            placeholder=get_text("search_placeholder", self.lang) or "Поиск оборудования...",
+            on_search=self._search_equipment,
+            on_reset=self._load_equipment,
+            show_find_button=False,
+            lang=self.lang,
+        )
+        self.eq_search.pack(side="right", padx=(10, 0))
         
         # Таблица с сортировкой
-        table_frame = ctk.CTkFrame(self.tab_equipment, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(self.tab_equipment, fg_color="#1e293b", corner_radius=10)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
@@ -354,6 +426,44 @@ class DocumentsView(ctk.CTkFrame):
                 
         except Exception as e:
             app_logger.error(f"Error loading equipment: {e}")
+            ToastNotification(self, f"{get_text('error_loading', self.lang)}: {e}", "error")
+
+    def _search_equipment(self, query: str) -> None:
+        """Поиск оборудования по тексту"""
+        self.eq_tree.delete(*self.eq_tree.get_children())
+        
+        try:
+            with self.db.get_cursor() as cur:
+                search_param = f"%{query}%"
+                cur.execute("""
+                    SELECT e.id, emp.full_name, e.model, e.device_type, e.serial_number
+                    FROM equipment e
+                    LEFT JOIN employees emp ON e.client_id = emp.id
+                    WHERE CAST(e.id AS TEXT) LIKE ?
+                       OR emp.full_name LIKE ?
+                       OR e.model LIKE ?
+                       OR e.device_type LIKE ?
+                       OR e.serial_number LIKE ?
+                    ORDER BY e.model
+                """, (search_param, search_param, search_param, search_param, search_param))
+                rows = cur.fetchall()
+            
+            if not rows:
+                self.eq_tree.show_empty_state(
+                    message=get_text("no_results", self.lang) or "Ничего не найдено",
+                    icon="🔍"
+                )
+                return
+            else:
+                self.eq_tree.hide_empty_state()
+            
+            for idx, row in enumerate(rows):
+                tag = "odd" if idx % 2 else "even"
+                values = (row[0], row[1] or "—", row[2], row[3] or "—", row[4] or "—")
+                self.eq_tree.insert("", "end", values=values, tags=(tag,))
+                
+        except Exception as e:
+            app_logger.error(f"Error searching equipment: {e}")
             ToastNotification(self, f"{get_text('error_loading', self.lang)}: {e}", "error")
 
     def _add_equipment(self) -> None:

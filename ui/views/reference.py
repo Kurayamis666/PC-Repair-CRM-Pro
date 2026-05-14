@@ -168,13 +168,15 @@ class ReferenceView(ctk.CTkFrame):
         self._clear_content()
         self.current_section = "contacts"
         
-        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.STATUS_NEW, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+        header.pack(fill="x", padx=5, pady=(5, 0))
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.STATUS_NEW, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=20, pady=(8, 0))
         ctk.CTkLabel(
-            header, text=get_text("contacts", self.lang), 
-            font=ctk.CTkFont(size=20, weight="bold"),
+            header, text="👥 " + get_text("contacts", self.lang), 
+            font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=10)
+        ).pack(pady=(6, 8))
         
         # Вкладки
         notebook = ctk.CTkTabview(self.content_frame, fg_color="transparent")
@@ -192,23 +194,26 @@ class ReferenceView(ctk.CTkFrame):
         btn_frame = ctk.CTkFrame(parent, fg_color="transparent")
         btn_frame.pack(fill="x", pady=10)
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_employee, width=130, height=30,
+                     command=self._add_employee, width=130, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_employee, width=130, height=30,
+                     command=self._edit_employee, width=130, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_employee, width=130, height=30,
+                     command=self._delete_employee, width=130, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         
         # Таблица
-        table_frame = ctk.CTkFrame(parent, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(parent, fg_color="#1e293b", corner_radius=8)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
@@ -324,22 +329,25 @@ class ReferenceView(ctk.CTkFrame):
         btn_frame = ctk.CTkFrame(parent, fg_color="transparent")
         btn_frame.pack(fill="x", pady=10)
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_contractor, width=130, height=30,
+                     command=self._add_contractor, width=130, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_contractor, width=130, height=30,
+                     command=self._edit_contractor, width=130, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_contractor, width=130, height=30,
+                     command=self._delete_contractor, width=130, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         
-        table_frame = ctk.CTkFrame(parent, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(parent, fg_color="#1e293b", corner_radius=8)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
@@ -449,13 +457,15 @@ class ReferenceView(ctk.CTkFrame):
         self._clear_content()
         self.current_section = "nomenclature"
         
-        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.STATUS_READY, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+        header.pack(fill="x", padx=5, pady=(5, 0))
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.STATUS_READY, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=20, pady=(8, 0))
         ctk.CTkLabel(
-            header, text=get_text("nomenclature", self.lang), 
-            font=ctk.CTkFont(size=20, weight="bold"),
+            header, text="📦 " + get_text("nomenclature", self.lang), 
+            font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=10)
+        ).pack(pady=(6, 8))
         
         notebook = ctk.CTkTabview(self.content_frame, fg_color="transparent")
         notebook.pack(fill="both", expand=True, padx=10, pady=10)
@@ -471,22 +481,25 @@ class ReferenceView(ctk.CTkFrame):
         btn_frame = ctk.CTkFrame(parent, fg_color="transparent")
         btn_frame.pack(fill="x", pady=10)
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_nom_type, width=130, height=30,
+                     command=self._add_nom_type, width=130, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_nom_type, width=130, height=30,
+                     command=self._edit_nom_type, width=130, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_nom_type, width=130, height=30,
+                     command=self._delete_nom_type, width=130, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         
-        table_frame = ctk.CTkFrame(parent, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(parent, fg_color="#1e293b", corner_radius=8)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
@@ -588,22 +601,25 @@ class ReferenceView(ctk.CTkFrame):
         btn_frame = ctk.CTkFrame(parent, fg_color="transparent")
         btn_frame.pack(fill="x", pady=10)
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_part, width=130, height=30,
+                     command=self._add_part, width=130, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_part, width=130, height=30,
+                     command=self._edit_part, width=130, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_part, width=130, height=30,
+                     command=self._delete_part, width=130, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         
-        table_frame = ctk.CTkFrame(parent, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(parent, fg_color="#1e293b", corner_radius=8)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
@@ -720,33 +736,38 @@ class ReferenceView(ctk.CTkFrame):
         self._clear_content()
         self.current_section = "units"
         
-        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.PRIMARY, corner_radius=0)
-        header.pack(fill="x")
+        header = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.BG_CARD, corner_radius=12)
+        header.pack(fill="x", padx=5, pady=(5, 0))
+        accent = ctk.CTkFrame(header, fg_color=ColorTheme.PRIMARY, height=3, corner_radius=2)
+        accent.pack(fill="x", padx=20, pady=(8, 0))
         ctk.CTkLabel(
-            header, text=get_text("units", self.lang), 
-            font=ctk.CTkFont(size=20, weight="bold"),
+            header, text="📏 " + get_text("units", self.lang), 
+            font=ctk.CTkFont(size=18, weight="bold"),
             text_color=ColorTheme.TEXT_PRIMARY
-        ).pack(pady=10)
+        ).pack(pady=(6, 8))
         
         btn_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
         btn_frame.pack(fill="x", pady=10)
         ctk.CTkButton(btn_frame, text="➕ " + get_text("add", self.lang), 
-                     command=self._add_unit, width=130, height=30,
+                     command=self._add_unit, width=130, height=32,
                      fg_color=ColorTheme.SUCCESS,
-                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.SUCCESS, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="✏️ " + get_text("edit", self.lang), 
-                     command=self._edit_unit, width=130, height=30,
+                     command=self._edit_unit, width=130, height=32,
                      fg_color=ColorTheme.INFO,
-                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.INFO, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         ctk.CTkButton(btn_frame, text="🗑️ " + get_text("delete", self.lang), 
-                     command=self._delete_unit, width=130, height=30,
+                     command=self._delete_unit, width=130, height=32,
                      fg_color=ColorTheme.ERROR,
-                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10)
+                     hover_color=ColorUtils.darken(ColorTheme.ERROR, 10),
+                     corner_radius=8
         ).pack(side="left", padx=10)
         
-        table_frame = ctk.CTkFrame(self.content_frame, fg_color=ColorTheme.BG_INPUT)
+        table_frame = ctk.CTkFrame(self.content_frame, fg_color="#1e293b", corner_radius=8)
         table_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         columns = [
