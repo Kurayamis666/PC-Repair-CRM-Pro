@@ -50,8 +50,8 @@ class TableStyle:
         
         # 📏 Адаптивные размеры
         row_height = int(38 * scale)
-        font_size = int(13 * scale)
-        heading_font_size = int(13 * scale)
+        font_size = int(12 * scale)
+        heading_font_size = int(12 * scale)
         
         # 🎨 Основная конфигурация Treeview
         style.configure(

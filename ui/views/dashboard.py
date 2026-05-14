@@ -175,20 +175,6 @@ class DashboardView(ctk.CTkFrame):
             btn.pack(side="left", padx=4)
             self.filter_vars[status] = btn
 
-        # 5.5 Поиск по заявкам
-        from ui.widgets.search_bar import SearchBar
-        search_frame = ctk.CTkFrame(self, fg_color="transparent")
-        search_frame.pack(fill="x", padx=20, pady=(5, 0))
-        self.dashboard_search = SearchBar(
-            search_frame,
-            placeholder=get_text("search_placeholder", self.lang) or "Поиск заявок...",
-            on_search=self._search_dashboard,
-            on_reset=self._load_requests,
-            show_find_button=False,
-            lang=self.lang,
-        )
-        self.dashboard_search.pack(fill="x")
-
         # 6. Таблица заявок с DataTable для сортировки
         table_card = ctk.CTkFrame(self, fg_color=ColorTheme.BG_CARD, corner_radius=12, border_width=1, border_color=ColorTheme.BORDER)
         table_card.pack(fill="both", expand=True, padx=10, pady=(5, 10))
@@ -367,46 +353,6 @@ class DashboardView(ctk.CTkFrame):
         finally:
             # Скрываем индикатор загрузки (если нужно)
             pass
-
-    def _search_dashboard(self, query: str) -> None:
-        """Поиск по заявкам на дашборде"""
-        self.tree.delete(*self.tree.get_children())
-        
-        try:
-            with self.db.get_cursor() as cur:
-                search_param = f"%{query}%"
-                cur.execute("""
-                    SELECT r.id, r.created_at, emp.full_name, e.model, r.status, r.total_cost, u.username
-                    FROM requests r
-                    LEFT JOIN employees emp ON r.client_id = emp.id
-                    LEFT JOIN equipment e ON r.equipment_id = e.id
-                    LEFT JOIN users u ON r.user_id = u.id
-                    WHERE CAST(r.id AS TEXT) LIKE ?
-                       OR emp.full_name LIKE ?
-                       OR e.model LIKE ?
-                       OR r.status LIKE ?
-                       OR u.username LIKE ?
-                       OR r.problem_desc LIKE ?
-                    ORDER BY r.created_at DESC
-                """, (search_param, search_param, search_param, search_param, search_param, search_param))
-                rows = cur.fetchall()
-            
-            for idx, row in enumerate(rows):
-                r_id, date, employee, equip, status, cost, master = row
-                tag = "odd" if idx % 2 else "even"
-                values = (
-                    r_id,
-                    (date or "")[:10],
-                    employee or "—",
-                    equip or "—",
-                    self._get_status_display(status),
-                    format_currency(cost, "RUB", self.lang),
-                    master or "—"
-                )
-                self.tree.insert("", "end", values=values, tags=(tag,))
-                
-        except Exception as e:
-            app_logger.exception(f"Error searching dashboard: {e}")
 
     def _filter_requests(self, status: str) -> None:
         """Фильтрация заявок по статусу"""
