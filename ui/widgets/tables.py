@@ -49,42 +49,44 @@ class TableStyle:
         style.theme_use("clam")
         
         # 📏 Адаптивные размеры
-        row_height = int(35 * scale)
-        font_size = int(12 * scale)
-        heading_font_size = int(12 * scale)
+        row_height = int(38 * scale)
+        font_size = int(13 * scale)
+        heading_font_size = int(13 * scale)
         
         # 🎨 Основная конфигурация Treeview
         style.configure(
             "Custom.Treeview",
-            background=ColorTheme.BG_INPUT,
-            fieldbackground=ColorTheme.BG_INPUT,
+            background="#1e293b",
+            fieldbackground="#1e293b",
             foreground=ColorTheme.TEXT_PRIMARY,
             rowheight=row_height,
             borderwidth=0,
-            selectbackground=ColorTheme.TABLE_SELECTED,
-            selectforeground=ColorTheme.TEXT_PRIMARY,
+            selectbackground="#4f46e5",
+            selectforeground="#FFFFFF",
             font=("Segoe UI", font_size),
+            padding=(4, 2),
         )
         
         # 🎯 Заголовки колонок
         style.configure(
             "Custom.Treeview.Heading",
-            background=ColorTheme.PRIMARY,
-            foreground=ColorTheme.TEXT_PRIMARY,
+            background="#334155",
+            foreground="#e2e8f0",
             font=("Segoe UI", heading_font_size, "bold"),
             relief="flat",
+            padding=(8, 6),
         )
         
         # 🖱️ Состояния при наведении/выборе
         style.map(
             "Custom.Treeview",
             background=[
-                ("selected", ColorTheme.TABLE_SELECTED),
-                ("active", ColorTheme.BG_HOVER),
-                ("!selected", ColorTheme.BG_INPUT),
+                ("selected", "#4f46e5"),
+                ("active", "#2d3a4e"),
+                ("!selected", "#1e293b"),
             ],
             foreground=[
-                ("selected", ColorTheme.TEXT_PRIMARY),
+                ("selected", "#FFFFFF"),
                 ("!selected", ColorTheme.TEXT_PRIMARY),
             ],
         )
@@ -92,12 +94,12 @@ class TableStyle:
         style.map(
             "Custom.Treeview.Heading",
             background=[
-                ("active", ColorTheme.PRIMARY_HOVER),
-                ("pressed", ColorTheme.PRIMARY),
+                ("active", "#475569"),
+                ("pressed", "#3b4f6b"),
             ],
             foreground=[
-                ("active", ColorTheme.TEXT_PRIMARY),
-                ("pressed", ColorTheme.TEXT_PRIMARY),
+                ("active", "#FFFFFF"),
+                ("pressed", "#FFFFFF"),
             ],
         )
         
@@ -157,7 +159,7 @@ class DataTable(ttk.Treeview):
             on_row_double_click: Callback при двойном клике
         """
         # 🧱 Создаём контейнер
-        self.container = tk.Frame(parent, bg=ColorTheme.BG_INPUT)
+        self.container = tk.Frame(parent, bg="#1e293b", highlightthickness=0)
         self.container.pack_propagate(False)  # ✅ Не сжиматься под контент
         
         # 🎨 Применяем стили
@@ -210,10 +212,10 @@ class DataTable(ttk.Treeview):
         # ✅ ВАЖНО: Упаковываем контейнер в родительский виджет
         # Это делается ВНЕ __init__, когда пользователь добавляет таблицу
         
-        # 🎨 Теги для чётных/нечётных строк
-        self.tag_configure("even", background=ColorTheme.BG_INPUT, foreground=ColorTheme.TEXT_PRIMARY)
-        self.tag_configure("odd", background="#253346", foreground=ColorTheme.TEXT_PRIMARY)
-        self.tag_configure("empty", background=ColorTheme.BG_INPUT, foreground=ColorTheme.TEXT_SECONDARY)
+        # 🎨 Теги для чётных/нечётных строк (zebra stripes)
+        self.tag_configure("even", background="#1e293b", foreground="#e2e8f0")
+        self.tag_configure("odd", background="#253346", foreground="#e2e8f0")
+        self.tag_configure("empty", background="#1e293b", foreground=ColorTheme.TEXT_SECONDARY)
         
         # 🔍 Поиск (опционально)
         self._search_var = tk.StringVar()
@@ -245,18 +247,18 @@ class DataTable(ttk.Treeview):
     
     def _setup_columns(self):
         """Настройка заголовков и ширины колонок"""
-        for col in self._columns:
-            # ✅ Преобразуем "left"/"right"/"center" в "w"/"e"/"center" для ttk
+        total_cols = len(self._columns)
+        for i, col in enumerate(self._columns):
             align = self._column_align.get(col, "center")
             ttk_anchor = {"left": "w", "right": "e", "center": "center"}.get(align, "center")
             
-            # Заголовок
-            self.heading(col, text=col, anchor=ttk_anchor)
+            self.heading(col, text=col, anchor="center")
             self.column(col, anchor=ttk_anchor)
             
-            # Ширина
-            width = self._column_widths.get(col, 100)
-            self.column(col, width=width, minwidth=50, stretch=False if align == "center" else True)
+            width = self._column_widths.get(col, 120)
+            # Let last column stretch to fill available space
+            is_last = (i == total_cols - 1)
+            self.column(col, width=width, minwidth=60, stretch=is_last)
     
     def _enable_header_sorting(self):
         """Включить сортировку по клику на заголовок"""
@@ -330,43 +332,47 @@ class DataTable(ttk.Treeview):
     def _setup_search(self):
         """Настроить строку поиска над таблицей"""
         try:
-            search_frame = tk.Frame(self.container, bg=ColorTheme.BG_INPUT)
-            search_frame.pack(fill="x", pady=(5, 0))
+            search_frame = tk.Frame(self.container, bg="#1e293b")
+            search_frame.pack(fill="x", pady=(5, 5), padx=5)
             
-            # Иконка поиска
             ctk.CTkLabel(
                 search_frame, text="🔍",
                 text_color=ColorTheme.TEXT_SECONDARY,
-                font=ctk.CTkFont(size=12)
-            ).pack(side="left", padx=(5, 2))
+                font=ctk.CTkFont(size=14)
+            ).pack(side="left", padx=(5, 4))
             
-            # Поле ввода
             self._search_entry = ctk.CTkEntry(
                 search_frame,
                 textvariable=self._search_var,
-                placeholder_text=get_text("search", "ru"),
-                height=28,
-                fg_color=ColorTheme.BG_CARD,
-                text_color=ColorTheme.TEXT_PRIMARY,
-                border_color=ColorTheme.BORDER,
+                placeholder_text=get_text("search", "ru") or "Поиск...",
+                height=32,
+                corner_radius=8,
+                fg_color="#334155",
+                text_color="#e2e8f0",
+                border_color="#475569",
+                placeholder_text_color="#64748b",
             )
             self._search_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
             self._search_entry.bind("<KeyRelease>", lambda e: self._filter_rows())
             
-            # Кнопка очистки
             clear_btn = ctk.CTkButton(
-                search_frame, text="×", width=24, height=24,
+                search_frame, text="×", width=28, height=28,
                 font=ctk.CTkFont(size=14, weight="bold"),
                 fg_color="transparent",
-                hover_color=ColorTheme.BG_HOVER,
-                text_color=ColorTheme.TEXT_SECONDARY,
-                command=lambda: self._search_var.set("")
+                hover_color="#475569",
+                text_color="#94a3b8",
+                corner_radius=6,
+                command=self._clear_search
             )
             clear_btn.pack(side="left", padx=(0, 5))
             
         except ImportError:
-            # Fallback без customtkinter
             pass
+    
+    def _clear_search(self):
+        """Очистка поиска и показ всех строк"""
+        self._search_var.set("")
+        self._filter_rows()
     
     def _filter_rows(self):
         """Фильтрация строк по поисковому запросу"""

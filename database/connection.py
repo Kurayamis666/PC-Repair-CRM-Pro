@@ -324,27 +324,99 @@ class DatabaseConnection:
         app_logger.debug("🌱 Inserting initial data...")
 
         # Настройки
-        cursor.executemany("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)",
-                          [("low_stock_threshold", "5"), ("show_low_stock_button", "1"), ("app_version", "1.0.0")])
+        cursor.executemany("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", [
+            ("low_stock_threshold", "5"), ("show_low_stock_button", "1"), ("app_version", "2.0.0"),
+            ("default_currency", "RUB"), ("tax_rate", "0"),
+            ("company_name", "PC Repair CRM Pro"), ("company_phone", "+7 (495) 100-10-10"),
+            ("company_email", "info@repair-crm.ru"),
+        ])
 
-        # Филиал
-        cursor.execute("INSERT OR IGNORE INTO branches (id, name) VALUES (?, ?)", (1, 'Главный офис'))
+        # Филиалы
+        cursor.executemany("INSERT OR IGNORE INTO branches (id, name, address, phone, email) VALUES (?, ?, ?, ?, ?)", [
+            (1, 'Главный офис', 'г. Москва, ул. Тверская, д. 15', '+7 (495) 100-10-10', 'main@repair-crm.ru'),
+            (2, 'Филиал Юг', 'г. Москва, ул. Каширское ш., д. 24', '+7 (495) 200-20-20', 'south@repair-crm.ru'),
+            (3, 'Филиал Север', 'г. Москва, Ленинградский пр-т, д. 80', '+7 (495) 300-30-30', 'north@repair-crm.ru'),
+        ])
 
         # Группы сотрудников
-        for g in ['Розница', 'Опт', 'VIP', 'B2B']:
-            cursor.execute("INSERT OR IGNORE INTO employee_groups (name) VALUES (?)", (g,))
+        cursor.executemany("INSERT OR IGNORE INTO employee_groups (name, discount, notes) VALUES (?, ?, ?)", [
+            ('Розничные', 0, 'Стандартная группа без скидок'),
+            ('Оптовые', 5, 'Скидка 5% для оптовых заказов'),
+            ('VIP', 10, 'Привилегированные клиенты со скидкой 10%'),
+            ('B2B Партнёры', 15, 'Корпоративные партнёры'),
+        ])
 
         # ✅ Администратор с PBKDF2 хешем
         try:
-            # Используем ту же функцию что и в приложении
             pwd_hash, salt = hash_password("123")
             cursor.execute("""
-                INSERT INTO users (username, password, password_salt, role, branch_id, full_name) 
-                VALUES (?, ?, ?, 'admin', 1, 'Администратор')
+                INSERT INTO users (username, password, password_salt, role, branch_id, full_name, email, phone) 
+                VALUES (?, ?, ?, 'admin', 1, 'Главный Администратор', 'admin@repair-crm.ru', '+7 (495) 100-00-01')
             """, ('admin', pwd_hash, salt))
             app_logger.info("✅ Default user 'admin' created with PBKDF2 password")
         except sqlite3.IntegrityError:
             app_logger.info("ℹ️  User 'admin' already exists")
+
+        # Сотрудники
+        employees_data = [
+            ('Иванов Иван Иванович', 'Старший мастер', '+7 (999) 123-45-67', 'ivanov@repair-crm.ru', 1, 65000),
+            ('Петров Пётр Петрович', 'Менеджер по приёмке', '+7 (999) 234-56-78', 'petrov@repair-crm.ru', 2, 48000),
+            ('Сидорова Анна Владимировна', 'Мастер по ремонту', '+7 (999) 345-67-89', 'sidorova@repair-crm.ru', 1, 58000),
+            ('Козлов Дмитрий Сергеевич', 'Техник-диагност', '+7 (999) 456-78-90', 'kozlov@repair-crm.ru', 3, 42000),
+            ('Новикова Елена Игоревна', 'Офис-менеджер', '+7 (999) 567-89-01', 'novikova@repair-crm.ru', 4, 44000),
+        ]
+        cursor.executemany(
+            "INSERT OR IGNORE INTO employees (full_name, position, phone, email, group_id, salary) VALUES (?, ?, ?, ?, ?, ?)",
+            employees_data
+        )
+
+        # Контрагенты
+        cursor.executemany("INSERT OR IGNORE INTO contractors (name, inn, phone, email, address) VALUES (?, ?, ?, ?, ?)", [
+            ('ООО "ТехноСервис"', '7701234567', '+7 (495) 123-45-67', 'info@technoservice.ru', 'г. Москва, ул. Техническая, д. 10'),
+            ('ИП Смирнов А.В.', '770123456789', '+7 (999) 111-22-33', 'smirnov@mail.ru', 'г. Москва, ул. Ленина, д. 5'),
+            ('ООО "ЗапчастиПро"', '7709876543', '+7 (495) 987-65-43', 'sales@zapchasti-pro.ru', 'г. Москва, пр-т Мира, д. 50'),
+        ])
+
+        # Оборудование
+        cursor.executemany(
+            "INSERT OR IGNORE INTO equipment (client_id, model, device_type, serial_number, color) VALUES (?, ?, ?, ?, ?)", [
+            (1, 'iPhone 14 Pro Max', 'Смартфон', 'SN-IP14PM-001', 'Deep Purple'),
+            (1, 'MacBook Pro 16" M2', 'Ноутбук', 'SN-MBP16-002', 'Space Gray'),
+            (2, 'Samsung Galaxy S23 Ultra', 'Смартфон', 'SN-SGS23U-003', 'Phantom Black'),
+            (3, 'Dell XPS 15 9530', 'Ноутбук', 'SN-DXPS15-004', 'Platinum Silver'),
+            (4, 'iPad Air 5', 'Планшет', 'SN-IPAD5-005', 'Blue'),
+        ])
+
+        # Заявки
+        cursor.executemany(
+            "INSERT OR IGNORE INTO requests (client_id, equipment_id, user_id, branch_id, status, priority, problem_desc, total_cost, labor_cost, parts_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            (1, 1, 1, 1, 'closed', 'normal', 'Не работает Face ID после падения', 8500, 3500, 5000),
+            (1, 2, 1, 1, 'ready', 'normal', 'Перегрев при нагрузке', 3500, 2500, 1000),
+            (2, 3, 1, 1, 'in_progress', 'high', 'Разбит экран', 15000, 5000, 10000),
+            (3, 4, 1, 1, 'diagnostics', 'normal', 'Ноутбук не включается', 0, 0, 0),
+            (4, 5, 1, 1, 'new', 'urgent', 'Не держит заряд', 0, 0, 0),
+        ])
+
+        # Запчасти
+        cursor.executemany(
+            "INSERT OR IGNORE INTO parts (name, sku, quantity, cost, price, category, supplier, contractor_id, unit, min_stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            ('Дисплей iPhone 14 Pro Max', 'DISP-IP14PM', 8, 12000, 18000, 'Дисплеи', 'ООО "ЗапчастиПро"', 3, 'шт', 3),
+            ('Аккумулятор iPhone 14', 'BAT-IP14PM', 20, 2500, 4500, 'Аккумуляторы', 'ООО "ЗапчастиПро"', 3, 'шт', 8),
+            ('Термопаста Arctic MX-6', 'PASTE-MX6', 30, 350, 800, 'Расходники', 'ИП Смирнов А.В.', 2, 'шт', 10),
+            ('Клавиатура MacBook Pro 16"', 'KB-MBP16M2', 4, 9000, 14000, 'Клавиатуры', 'ООО "ТехноСервис"', 1, 'шт', 2),
+            ('Зарядное устройство USB-C 65W', 'CHG-USBC65', 40, 450, 1200, 'Аксессуары', 'ООО "ЗапчастиПро"', 3, 'шт', 15),
+        ])
+
+        # Справочники — типы номенклатуры
+        for nom in ['Дисплеи', 'Аккумуляторы', 'Клавиатуры', 'Расходники', 'Аксессуары', 'Накопители', 'Модули', 'Разъёмы']:
+            cursor.execute("INSERT OR IGNORE INTO directories (nom_type, notes) VALUES (?, ?)", (nom, f'Категория: {nom}'))
+
+        # Справочники — единицы измерения
+        cursor.executemany("INSERT OR IGNORE INTO directories (unit, sku, coefficient) VALUES (?, ?, ?)", [
+            ('шт', 'PCS', 1), ('упак', 'PACK', 10), ('кг', 'KG', 1),
+            ('г', 'G', 0.001), ('м', 'M', 1), ('см', 'CM', 0.01),
+            ('л', 'L', 1), ('мл', 'ML', 0.001),
+        ])
 
         conn.commit()
         conn.close()
