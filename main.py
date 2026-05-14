@@ -15,14 +15,24 @@ if getattr(sys, 'frozen', False):
     # Запуск из .exe
     application_path = os.path.dirname(sys.executable)
     # Для доступа к встроенным ресурсам в .exe
-    sys._MEIPASS = application_path
+    internal_path = os.path.join(application_path, "_internal")
+    if os.path.isdir(internal_path):
+        sys._MEIPASS = internal_path
+    else:
+        sys._MEIPASS = application_path
 else:
     # Запуск из скрипта
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 # Добавляем путь к проекту в sys.path для импортов
-if application_path not in sys.path:
-    sys.path.insert(0, application_path)
+import_paths = [application_path]
+if getattr(sys, 'frozen', False):
+    import_paths.append(os.path.join(application_path, "_internal"))
+    import_paths.append(getattr(sys, "_MEIPASS", application_path))
+
+for import_path in import_paths:
+    if import_path not in sys.path:
+        sys.path.insert(0, import_path)
 
 
 def resource_path(relative_path: str) -> str:
