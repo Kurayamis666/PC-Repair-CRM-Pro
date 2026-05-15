@@ -258,17 +258,14 @@ class DataTable(ttk.Treeview):
         """Настройка заголовков и ширины колонок"""
         total_cols = len(self._columns)
         for i, col in enumerate(self._columns):
-            align = self._column_align.get(col, "center")
-            ttk_anchor = {"left": "w", "right": "e", "center": "center"}.get(align, "center")
-            
             self.heading(col, text=col, anchor="center")
-            self.column(col, anchor=ttk_anchor)
             
             width = self._column_widths.get(col, 120)
             # Let last column stretch to fill available space
             is_last = (i == total_cols - 1)
             self.column(
                 col,
+                anchor="center",
                 width=width + TableStyle.CELL_X_PADDING * 2,
                 minwidth=TableStyle.MIN_COLUMN_WIDTH,
                 stretch=is_last,
