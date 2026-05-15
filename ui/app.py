@@ -189,7 +189,8 @@ class App(ctk.CTk):
         # Создаём главное окно как фрейм внутри App
         self._main_window = MainWindow(
             parent=self,
-            user=self.current_user
+            user=self.current_user,
+            on_logout=self._logout_to_login,
         )
         
         # Показываем главное окно
@@ -200,6 +201,23 @@ class App(ctk.CTk):
         self.focus_set()
         
         app_logger.info(f"✅ Main window loaded for user: {self.current_user.get('username')}")
+
+    def _logout_to_login(self) -> None:
+        """Вернуться на окно входа после выхода пользователя"""
+        username = self.current_user.get("username") if self.current_user else "unknown"
+        app_logger.info(f"👤 Пользователь {username} вышел из системы")
+
+        if self._main_window:
+            try:
+                if self._main_window.winfo_exists():
+                    self._main_window.destroy()
+            except Exception as e:
+                app_logger.debug(f"ℹ️ Main window already closed: {e}")
+            finally:
+                self._main_window = None
+
+        self.current_user = None
+        self._show_login()
     
     def _on_closing(self) -> None:
         """Обработчик закрытия приложения"""
